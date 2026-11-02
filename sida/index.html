@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="sv">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Kursverktyget</title>
+  <script src="data/kurs.js?v=20261102e"></script>
+  <script>
+    // Valt tema sätts innan sidan ritas, så att den inte blinkar till i fel färg.
+    (function () {
+      try {
+        var t = localStorage.getItem(window.KURS.kurs.kod.toLowerCase() + ".tema");
+        if (t === "light" || t === "dark") document.documentElement.dataset.theme = t;
+      } catch (e) {}
+    })();
+  </script>
+  <link rel="stylesheet" href="style.css?v=20261102e">
+</head>
+<body>
+  <header class="topp">
+    <nav class="huvudnav" aria-label="Huvudnavigering">
+      <a href="#/" data-vy="laget">Läget</a>
+      <a href="#/nu" data-vy="nu">Nu</a>
+    </nav>
+    <span id="idag" class="idag"></span>
+  </header>
+
+  <main id="app" tabindex="-1"></main>
+
+  <footer id="sidfot" class="sidfot"></footer>
+
+  <noscript>Sidan behöver JavaScript.</noscript>
+
+  <script src="js/kurs.js?v=20261102e"></script>
+  <script src="js/lagring.js?v=20261102e"></script>
+  <script src="js/delar.js?v=20261102e"></script>
+  <script src="js/vyer/laget.js?v=20261102e"></script>
+  <script src="js/vyer/nu.js?v=20261102e"></script>
+  <script src="js/vyer/tentan.js?v=20261102e"></script>
+  <script src="js/router.js?v=20261102e"></script>
+</body>
+</html>

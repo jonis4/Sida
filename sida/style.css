@@ -1,0 +1,465 @@
+/* ==========================================================================
+   Designvariabler (DESIGNLAG.md §4). Ändra här, så ändras allt.
+   Färgroller är namngivna efter funktion. Gråskala är basen; färg betyder alltid något.
+   ========================================================================== */
+:root {
+  /* Färgroller */
+  --bg: #ffffff;
+  --text: #1a1a1a;          /* primär: innehåll, rubriker, nyckeltal */
+  --tyst: #5f5f5f;          /* sekundär: etiketter, metadata (6,4:1 mot --bg) */
+  --tertiar: #707070;       /* tertiär: statusrad, datum, legend (4,9:1 mot --bg) */
+  --svag: #e3e3e3;          /* hårstreck */
+  --yta: #f3f3f3;           /* egen yta: bara för status (t.ex. "senast öppnad") */
+  --kontroll: #e8e8e8;      /* huvudhandlingens block, segmentspår */
+  --fel: #b3261e;           /* destruktiv handling och fel som kräver handling */
+  --fokus: var(--text);     /* fokusringen använder textfärgen, ingen accent */
+  --band: #ececec;          /* modulband i tidslinjen */
+  --band-pagar: #d2d2d2;    /* modulen som pågår: något mörkare (status) */
+
+  /* Känsla 1–5: gråskala, ljushet faller monotont (layout.md §4.3) */
+  --kansla-1: #f0f0f0;
+  --kansla-2: #d6d6d6;
+  --kansla-3: #a8a8a8;
+  --kansla-4: #6e6e6e;
+  --kansla-5: #333333;
+  --kansla-text-ljus: #1a1a1a;   /* text på 1–3 */
+  --kansla-text-mork: #ffffff;   /* text på 4–5 */
+
+  /* Typografi: ett typsnitt, två vikter */
+  --font: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, Roboto, "Helvetica Neue", Arial, sans-serif;
+  --vikt: 400;
+  --vikt-fet: 600;
+  --storlek-bas: 1.0625rem;      /* 17 px vid standardinställning */
+  --storlek-rubrik: 1.6rem;
+  --storlek-mellan: 1.125rem;
+  --storlek-liten: 0.88rem;
+  --storlek-etikett: 0.78rem;    /* små versaler med spärrning */
+  --sparrning: 0.08em;
+  --radavstand: 1.55;
+
+  /* Mått och avstånd */
+  --bredd: 44rem;
+  --kant: 1rem;                  /* sidmarginal (16 px) */
+  --steg-1: 0.25rem;
+  --steg-2: 0.5rem;
+  --steg-3: 1rem;
+  --steg-4: 1.6rem;
+  --steg-5: 2.6rem;
+  --klickyta: 2.75rem;           /* 44 px */
+  --rundning: 6px;
+  --hårstreck: 1px solid var(--svag);
+  --utfallning: 140ms;
+
+  color-scheme: light dark;
+}
+
+/* Mörkt läge: följer systemet (Auto) om inget annat är valt (data-theme på <html>). */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #161616;
+    --text: #e8e8e8;
+    --tyst: #a6a6a6;
+    --tertiar: #8f8f8f;
+    --svag: #2e2e2e;
+    --yta: #222222;
+    --kontroll: #2c2c2c;
+    --fel: #ff8a80;
+    --band: #262626;
+    --band-pagar: #3d3d3d;
+    --kansla-1: #2a2a2a;
+    --kansla-2: #474747;
+    --kansla-3: #767676;
+    --kansla-4: #b0b0b0;
+    --kansla-5: #e8e8e8;
+    --kansla-text-ljus: #e8e8e8;
+    --kansla-text-mork: #161616;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #161616;
+  --text: #e8e8e8;
+  --tyst: #a6a6a6;
+  --tertiar: #8f8f8f;
+  --svag: #2e2e2e;
+  --yta: #222222;
+  --kontroll: #2c2c2c;
+  --fel: #ff8a80;
+  --band: #262626;
+  --band-pagar: #3d3d3d;
+  --kansla-1: #2a2a2a;
+  --kansla-2: #474747;
+  --kansla-3: #767676;
+  --kansla-4: #b0b0b0;
+  --kansla-5: #e8e8e8;
+  --kansla-text-ljus: #e8e8e8;
+  --kansla-text-mork: #161616;
+  color-scheme: dark;
+}
+:root[data-theme="light"] { color-scheme: light; }
+
+/* ==========================================================================
+   Grund
+   ========================================================================== */
+* { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: var(--storlek-bas);
+  line-height: var(--radavstand);
+  font-weight: var(--vikt);
+}
+
+a { color: inherit; text-underline-offset: 0.18em; text-decoration-thickness: 1px; }
+:focus-visible { outline: 2px solid var(--fokus); outline-offset: 3px; border-radius: 2px; }
+main:focus { outline: none; }
+
+h1, h2, strong, b { font-weight: var(--vikt-fet); }
+h1 { font-size: var(--storlek-rubrik); line-height: 1.25; margin: 0 0 var(--steg-2); }
+h2 { font-size: var(--storlek-bas); margin: 0; }
+
+.dold { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.tyst { color: var(--tyst); }
+.tertiar { color: var(--tertiar); font-size: var(--storlek-liten); }
+.etikett {
+  font-size: var(--storlek-etikett);
+  letter-spacing: var(--sparrning);
+  text-transform: uppercase;
+  color: var(--tyst);
+  font-weight: var(--vikt-fet);
+}
+.siffror { font-variant-numeric: tabular-nums; }
+
+/* ==========================================================================
+   Topp: huvudnav + dagens datum
+   ========================================================================== */
+.topp {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--steg-3);
+  max-width: var(--bredd);
+  margin: 0 auto;
+  padding: var(--steg-4) var(--kant) 0;
+}
+.huvudnav { display: flex; gap: var(--steg-4); }
+.huvudnav a {
+  font-size: var(--storlek-etikett);
+  letter-spacing: var(--sparrning);
+  text-transform: uppercase;
+  color: var(--tyst);
+  text-decoration: none;
+  padding: var(--steg-2) 0;
+  min-height: var(--klickyta);
+  min-width: var(--klickyta);
+  display: inline-flex;
+  align-items: center;
+}
+.huvudnav a:hover { color: var(--text); }
+.huvudnav a[aria-current="page"] { color: var(--text); font-weight: var(--vikt-fet); }
+.idag { color: var(--tertiar); font-size: var(--storlek-liten); }
+
+main {
+  max-width: var(--bredd);
+  margin: 0 auto;
+  padding: var(--steg-5) var(--kant) var(--steg-5);
+}
+
+/* ==========================================================================
+   Sidfot: en tyst rad. Bara fel tar plats (DESIGNLAG L5, L6).
+   ========================================================================== */
+.sidfot {
+  max-width: var(--bredd);
+  margin: 0 auto;
+  padding: var(--steg-2) var(--kant) var(--steg-4);
+  color: var(--tertiar);
+  font-size: var(--storlek-liten);
+}
+.sidfot a { color: var(--tyst); display: inline-flex; align-items: center; min-height: var(--klickyta); }
+.sidfot .sep { margin: 0 var(--steg-2); }
+.sidfot .varning { color: var(--fel); font-weight: var(--vikt-fet); }
+
+/* ==========================================================================
+   Knappar
+   ========================================================================== */
+button { font: inherit; color: inherit; }
+.textknapp {
+  background: none;
+  border: 0;
+  padding: var(--steg-2) 0;
+  min-height: var(--klickyta);
+  color: var(--tyst);
+  text-decoration: underline;
+  text-underline-offset: 0.18em;
+  text-decoration-thickness: 1px;
+  cursor: pointer;
+}
+.textknapp:hover { color: var(--text); }
+
+/* ==========================================================================
+   Nu (layout.md §5)
+   ========================================================================== */
+.metarad { margin: 0 0 var(--steg-2); color: var(--tyst); font-size: var(--storlek-liten); }
+.metarad .inaktiv { color: var(--tertiar); }
+.nu h1 { margin-bottom: var(--steg-5); }
+.nu section, .nu fieldset { margin: 0 0 var(--steg-5); }
+.nu .etikett { display: block; margin: 0 0 var(--steg-3); }
+.anmarkning { margin: calc(-1 * var(--steg-2)) 0 var(--steg-3); color: var(--tyst); font-size: var(--storlek-liten); }
+
+/* Uppgifter: stora knappar som går att klicka i och ur. Ikryssad = fylld (form, inte bara färg). */
+.uppgiftsrad { display: flex; flex-wrap: wrap; align-items: center; gap: var(--steg-2); }
+.uppgift {
+  min-width: 3.5rem;
+  min-height: 3.5rem;
+  padding: 0 var(--steg-3);
+  border: 1px solid var(--tertiar);
+  border-radius: var(--rundning);
+  background: var(--bg);
+  font-size: var(--storlek-mellan);
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+}
+.uppgift[aria-pressed="true"] {
+  background: var(--text);
+  border-color: var(--text);
+  color: var(--bg);
+  font-weight: var(--vikt-fet);
+}
+.uppgiftsrad.pabyggnad { margin-top: var(--steg-3); }
+.pabyggnad .uppgift {
+  min-width: var(--klickyta);
+  min-height: var(--klickyta);
+  font-size: var(--storlek-bas);
+  border-style: dashed;
+}
+.pabyggnad .uppgift[aria-pressed="true"] { border-style: solid; }
+.rad-etikett { color: var(--tyst); font-size: var(--storlek-liten); margin-right: var(--steg-2); }
+
+/* Känsla: segmenterat val (grått spår, valt alternativ som upphöjd platta). */
+fieldset { border: 0; padding: 0; min-width: 0; }
+legend { padding: 0; }
+.segment {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 2px;
+  padding: 3px;
+  background: var(--kontroll);
+  border-radius: calc(var(--rundning) + 3px);
+}
+.segment-val {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--steg-2);
+  min-height: var(--klickyta);
+  padding: var(--steg-2);
+  border-radius: var(--rundning);
+  border: 1px solid transparent;
+  color: var(--tyst);
+  font-size: var(--storlek-liten);
+  line-height: 1.25;
+  cursor: pointer;
+}
+.segment-val input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
+.segment-val:has(input:checked) { background: var(--bg); border-color: var(--svag); color: var(--text); font-weight: var(--vikt-fet); }
+.segment-val:has(input:focus-visible) { outline: 2px solid var(--fokus); outline-offset: 1px; }
+.kanslaruta {
+  flex: none;
+  display: inline-grid;
+  place-items: center;
+  width: 1.6rem;
+  height: 1.6rem;
+  border-radius: 4px;
+  font-size: var(--storlek-liten);
+  font-weight: var(--vikt-fet);
+  font-variant-numeric: tabular-nums;
+}
+.k1 { background: var(--kansla-1); color: var(--kansla-text-ljus); box-shadow: inset 0 0 0 1px var(--tertiar); }
+.k2 { background: var(--kansla-2); color: var(--kansla-text-ljus); }
+.k3 { background: var(--kansla-3); color: var(--kansla-text-ljus); }
+.k4 { background: var(--kansla-4); color: var(--kansla-text-mork); }
+.k5 { background: var(--kansla-5); color: var(--kansla-text-mork); }
+.ta-bort { margin-top: var(--steg-1); }
+
+/* Anteckning: växer till en gräns och scrollar sedan. */
+.anteckning textarea {
+  display: block;
+  width: 100%;
+  min-height: 5.5rem;
+  max-height: 22rem;
+  padding: var(--steg-2) 0.75rem;
+  border: 1px solid var(--tertiar);
+  border-radius: var(--rundning);
+  background: var(--bg);
+  color: var(--text);
+  font: inherit;
+  line-height: var(--radavstand);
+  resize: none;
+  overflow-y: auto;
+}
+
+/* Föregående / Nästa. Nästa är något tydligare. */
+.grannar {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--steg-3);
+  margin-top: var(--steg-5);
+  padding-top: var(--steg-3);
+  border-top: var(--hårstreck);
+}
+.granne { display: flex; flex-direction: column; text-decoration: none; padding: var(--steg-2) 0; max-width: 48%; }
+.granne-riktning { color: var(--tyst); font-size: var(--storlek-liten); }
+.granne-kapitel { color: var(--tyst); }
+.granne:hover .granne-kapitel { text-decoration: underline; }
+.granne.nasta { text-align: right; margin-left: auto; }
+.granne.nasta .granne-riktning { color: var(--text); font-weight: var(--vikt-fet); }
+.granne.nasta .granne-kapitel { color: var(--text); }
+
+/* Mobil: känslan blir en kompakt rad 1–5 med nivåns namn under (layout.md §8). */
+@media (max-width: 40rem) {
+  .segment-val { flex-direction: column; justify-content: center; gap: var(--steg-1); padding: var(--steg-2) 2px; text-align: center; font-size: 0.72rem; }
+  .uppgift { min-width: 3.1rem; min-height: 3.1rem; }
+}
+
+/* ==========================================================================
+   Läget (layout.md §4)
+   ========================================================================== */
+.laget-pagar { margin: 0 0 var(--steg-4); color: var(--tyst); }
+
+/* Tidslinjen (layout.md §4.2): veckor, modulband, jul, idag, föreläsningsstreck. */
+.tidslinje { margin: 0 0 var(--steg-5); }
+.tl-veckor, .tl-banden, .tl-forelasningar { position: relative; }
+.tl-veckor { height: 1.1rem; margin-bottom: var(--steg-1); }
+.tl-vecka { position: absolute; top: 0; color: var(--tertiar); font-size: 0.7rem; line-height: 1; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.tl-banden { height: var(--klickyta); }
+.tl-band {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--steg-1);
+  padding: 0 var(--steg-2);
+  overflow: hidden;
+  border: 0;
+  border-left: 2px solid var(--bg);   /* glapp mellan band som ligger dag mot dag */
+  background-clip: padding-box;
+  border-radius: 6px;
+  background: var(--band);
+  container-type: inline-size;
+  color: var(--text);
+  font-size: var(--storlek-liten);
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.tl-band:hover { background: var(--band-pagar); }
+.tl-band.pagar { background: var(--band-pagar); font-weight: var(--vikt-fet); }
+.tl-nr { font-weight: var(--vikt-fet); font-variant-numeric: tabular-nums; }
+.tl-namn { overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+/* Namnet visas bara när det får plats, annars bara numret. */
+@container (max-width: 9rem) { .tl-band[data-modul] .tl-namn { display: none; } }
+.tl-uppehall {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  pointer-events: none;   /* klick går igenom till bandet under */
+  background: repeating-linear-gradient(135deg, transparent 0 4px, var(--tertiar) 4px 5px);
+  opacity: 0.35;
+}
+.tl-idag { position: absolute; top: -0.35rem; bottom: -0.9rem; width: 2px; margin-left: -1px; background: var(--text); pointer-events: none; }
+.tl-forelasningar { height: 0.75rem; margin-top: 3px; }
+.tl-streck { position: absolute; top: 0; width: 1px; height: 0.5rem; background: var(--tyst); }
+.kapitlen-topp { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: var(--steg-2) var(--steg-4); margin-bottom: var(--steg-3); }
+.kapitlen-topp .etikett { margin: 0; }
+.komigang { margin: 0 0 var(--steg-3); }
+
+/* Sortering: textflikar, inga rullgardiner (DESIGNLAG §4). */
+.flikar { display: flex; flex-wrap: wrap; gap: 0 var(--steg-4); }
+.flik {
+  background: none;
+  border: 0;
+  padding: 0;
+  min-height: var(--klickyta);
+  color: var(--tyst);
+  font-size: var(--storlek-liten);
+  cursor: pointer;
+}
+.flik:hover { color: var(--text); }
+.flik[aria-pressed="true"] { color: var(--text); font-weight: var(--vikt-fet); }
+
+/* Kolumner: Kapitel · Ikryssade · Känns · På tentan */
+.kolumnrubriker, .kapitelrad {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 8.5rem 9.5rem 4.5rem;
+  gap: var(--steg-3);
+  align-items: center;
+}
+.kolumnrubriker { padding: 0 var(--steg-2) var(--steg-1); color: var(--tertiar); font-size: var(--storlek-etikett); }
+
+.modul { margin-top: var(--steg-4); }
+.modulrubrik {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--steg-3);
+  margin: 0 0 var(--steg-1);
+  padding: var(--steg-2) 0;
+  min-height: var(--klickyta);
+  align-items: center;
+  font-size: var(--storlek-bas);
+  font-weight: var(--vikt-fet);
+}
+summary.modulrubrik { cursor: pointer; list-style: none; border-top: var(--hårstreck); }
+summary.modulrubrik::-webkit-details-marker { display: none; }
+summary.modulrubrik .tyst { font-weight: var(--vikt); white-space: nowrap; }
+details:not([open]) .dolj, details[open] .visa { display: none; }
+.tentarad { text-decoration: none; border-top: var(--hårstreck); }
+.tentarad:hover .tyst { color: var(--text); text-decoration: underline; }
+
+.kapitellista { list-style: none; margin: 0; padding: 0; }
+.kapitelrad {
+  min-height: var(--klickyta);
+  padding: var(--steg-2);
+  border-radius: var(--rundning);
+  text-decoration: none;
+}
+.kapitelrad:hover .kapiteltitel { text-decoration: underline; }
+.kapitelrad.senast { background: var(--yta); }   /* status, inte dekoration */
+/* Numret i fast bredd, titeln bryts i sin egen spalt. */
+.kol-kapitel { display: grid; grid-template-columns: 2.6rem minmax(0, 1fr); column-gap: var(--steg-2); align-items: baseline; min-width: 0; }
+.kapitelnr { font-variant-numeric: tabular-nums; }
+.kapiteltitel { min-width: 0; }
+.senast-etikett { grid-column: 2; color: var(--tyst); font-size: var(--storlek-liten); }
+.kol-ikryssade { display: flex; align-items: center; gap: var(--steg-2); color: var(--tyst); font-size: var(--storlek-liten); }
+.stapel { flex: 1; height: 4px; background: var(--svag); border-radius: 2px; overflow: hidden; }
+.stapel span { display: block; height: 100%; background: var(--tyst); }
+.kol-kansla { display: flex; align-items: center; gap: var(--steg-2); font-size: var(--storlek-liten); color: var(--tyst); }
+.kol-tentan { color: var(--tyst); font-size: var(--storlek-liten); }
+
+/* Mobil: varje rad blir två rader, kapitlet överst (layout.md §8). */
+@media (max-width: 40rem) {
+  .kolumnrubriker { display: none; }
+  .kapitelrad {
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    grid-template-areas: "kap kap kap" "ikr kansla tentan";
+    gap: var(--steg-1) var(--steg-3);
+  }
+  .kol-kapitel { grid-area: kap; }
+  .kol-ikryssade { grid-area: ikr; }
+  .kol-kansla { grid-area: kansla; }
+  .kol-tentan { grid-area: tentan; text-align: right; }
+  .kol-ikryssade .stapel { max-width: 6rem; }
+  .kol-tentan:not(:empty)::after { content: " tentor"; }
+  /* Tidslinjen visar banden med nummer, utan namn (layout.md §8). */
+  .tl-band[data-modul] .tl-namn { display: none; }
+  .tl-band[data-modul] { justify-content: center; padding: 0 2px; }
+  .tl-vecka.udda { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition: none !important; animation: none !important; scroll-behavior: auto !important; }
+}
