@@ -119,14 +119,16 @@ Plus en sak sidan själv håller koll på: **senast öppnade kapitel**.
 - Inga siffror om hur mycket som är gjort.
 
 ### 4.2 Tidslinjen
-- **I skala**, från kursstart till tentan.
-- **Veckor:** små grå etiketter (v45, v46 …). Inga linjer, ingen helgskuggning.
-- **Moduler:** band med nummer och kort namn. Modulen som pågår är något mörkare.
-- **Tentan:** sista bandet, som en egen modul.
-- **Föreläsningar:** korta, omärkta streck under banden. Ingen numrering. Tiden och salen finns i kapitlets metarad i Nu.
-- **Jul:** svagt streckad yta.
-- **Idag:** en tunn linje genom banden.
-- **Klick på en modul** gör samma sak som klick på modulens rubrik i listan (§4.3). Klick på Tentan öppnar Tentan (§6).
+- **Rent visuell.** Den svarar på tre frågor: var på linjen är jag, hur nära är nästa föreläsning, och vilken del av kursen är jag i. Inget i den är klickbart, utom en liten ?-knapp under den.
+- **I skala**, från första föreläsningen till slutet av tentadagen. Ingen marginal före eller efter.
+- **Inga veckoetiketter, modulnamn eller datum.** Bara modulnummer.
+- **Moduler:** ett band per modul (även modul 6), från modulens första till sista föreläsningsdag. Modulen som pågår är något mörkare, men ljusare än idag och Tentan. I för smala band döljs numret.
+- **Tentan:** ett svart block, en dag brett, på tentadagen. "Tenta" står ovanför, högerställt.
+- **Föreläsningar och helger** på samma tunna rad under banden. Föreläsningar är grå streck. **Nästa föreläsning** (den första som inte har slutat, med klockslag) är svart och något högre.
+- **Jul:** diagonal streckning över uppehållet.
+- **Idag:** en svart linje genom allt, med "idag" ovanför. Den syns bara under kursen.
+- **?-knappen** fäller ut en förklaring på plats, med små exempel ritade som tidslinjen. Esc stänger.
+- För skärmläsare är tidslinjen en bild med en beskrivning i klartext (idag, modulen som pågår, nästa föreläsning, tentan).
 - Tidslinjen är en karta, inte en värdering. Den visar aldrig hur mycket du har gjort.
 
 ### 4.3 Kapitellistan
@@ -262,10 +264,11 @@ Samma modell som förra kursens tentasida:
 
 | Tillstånd | Vad som visas |
 |---|---|
-| Före kursstart | Läget som vanligt. Idag-linjen ligger före första modulen |
+| Före kursstart | Läget som vanligt. Ingen idag-linje i tidslinjen. Rubriken säger "Kursen börjar …" |
 | Inget kapitel öppnat än | Nu visar 13.1 |
-| Jul (inga föreläsningar) | Inget särskilt. Tidslinjen visar jul |
-| Efter tentan | Läget som vanligt. Idag-linjen ligger efter Tentan |
+| Jul (inga föreläsningar) | Inget särskilt. Idag-linjen ligger i den streckade julen, och nästa föreläsning är den efter jul |
+| Tentadagen | Idag-linjen ligger på tentablocket. Ingen föreläsning är "nästa" |
+| Efter tentan | Läget som vanligt. Ingen idag-linje. Rubriken säger "Tentan har varit" |
 | Kapitel utan standarduppgifter | Bara påbyggnad, med en förklarande rad |
 | Inget bedömt | Känns-kolumnen är tom, inte noll |
 | Sparandet misslyckas | Beständig varningsrad i sidfoten |

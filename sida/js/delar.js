@@ -49,9 +49,9 @@
     const vald = Lagring.kapitel(c.id).kansla;
     let h = '<fieldset class="kansla"><legend class="etikett">Hur känns kapitlet?</legend><div class="segment">';
     for (const [n, namn] of Object.entries(KANSLOR)) {
-      h += '<label class="segment-val"><input type="radio" name="kansla" value="' + n + '"'
+      h += '<label class="segment-val k' + n + '"><input type="radio" name="kansla" value="' + n + '"'
         + (Number(n) === vald ? " checked" : "") + ">"
-        + '<span class="kanslaruta k' + n + '" aria-hidden="true">' + n + "</span>"
+        + '<span class="segment-siffra" aria-hidden="true">' + n + "</span>"
         + '<span class="segment-namn">' + esc(namn) + "</span></label>";
     }
     h += "</div>"
@@ -60,20 +60,33 @@
     return h;
   }
 
-  // Sidfoten: Inställningar och sparstatus. Ett sparfel blir en beständig varning (DESIGNLAG L6).
+  // Sidfoten: Inställningar och sparstatus, en tyst rad (DESIGNLAG L5, L6).
+  // Bara det som kräver handling just nu tar plats: sparfel, kopian på disken, Ångra i 15 s.
+  let sidfotTimer = null;
   function sidfot(el) {
+    clearTimeout(sidfotTimer);
     const s = Lagring.status;
+    const sf = window.Sparfil;
+    const knapp = (h, t) => ' <button type="button" class="textknapp" data-handling="' + h + '">' + t + "</button>";
     let text;
     if (s.fel === "blockerad") {
-      text = '<span class="varning">Webbläsaren tillåter inte sparande. Det du fyller i försvinner när fliken stängs.</span>';
+      text = '<span class="varning">Webbläsaren tillåter inte sparande. Det du fyller i försvinner när fliken stängs.</span>'
+        + ' <a href="#/installningar">Ladda ner en kopia</a>';
     } else if (s.fel === "full") {
-      text = '<span class="varning">Lagringen i webbläsaren är full. Det senaste sparades inte.</span>';
+      text = '<span class="varning">Lagringen i webbläsaren är full. Det senaste sparades inte.</span>'
+        + ' <a href="#/installningar">Ladda ner en kopia</a>';
     } else if (s.fel === "nyare") {
       text = '<span class="varning">Datan är sparad av en nyare version av sidan och skrivs inte över. Ladda om sidan.</span>';
-    } else if (s.senast) {
-      text = "Sparad i webbläsaren " + tid(s.senast);
+    } else if (sf && sf.lage === "fel") {
+      text = '<span class="varning">Kopian på disken: ' + esc(sf.fel) + "</span>" + knapp("sparfil-valj", "Välj fil igen…");
+    } else if (sf && sf.lage === "behover-ok") {
+      text = "Kopian på disken väntar på ditt OK." + knapp("sparfil-ateranslut", "Fortsätt kopiera till " + esc(sf.namn));
+    } else if (Lagring.kanAngra()) {
+      text = (Lagring.angraTyp === "rensa" ? "All data är raderad." : "Kopian är inläst.") + knapp("angra", "Ångra");
+      sidfotTimer = setTimeout(() => sidfot(el), Lagring.angraKvar + 50); // Ångra försvinner efter 15 s
     } else {
-      text = "Sparas i webbläsaren";
+      const disk = sf && sf.lage === "aktiv" ? " och i " + esc(sf.namn) : "";
+      text = s.senast ? "Sparad i webbläsaren" + disk + " " + tid(s.senast) : "Sparas i webbläsaren" + disk;
     }
     el.innerHTML = '<a href="#/installningar">Inställningar</a><span class="sep" aria-hidden="true">·</span>'
       + '<span role="status">' + text + "</span>";

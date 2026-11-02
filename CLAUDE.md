@@ -275,9 +275,9 @@ Fasen är inte färdigplanerad. Den delas upp så här:
 - [x] Fas 3 – Skal och lagring (2 nov 2026)
 - [x] Fas 4 – Nu (2 nov 2026)
 - [x] Fas 5 – Läget (2 nov 2026)
-- [ ] Fas 6 – Tidslinjen
-- [ ] Fas 7 – Inställningar och data
-- [ ] Fas 8 – Mobil, kanttillstånd, finslipning
+- [x] Fas 6 – Tidslinjen (2 nov 2026)
+- [x] Fas 7 – Inställningar och data (2 nov 2026)
+- [x] Fas 8 – Mobil, kanttillstånd, finslipning (2 nov 2026)
 - [ ] Fas 9 – Publicering (valfritt)
 - [ ] Fas 10 – Tentan
 
@@ -340,6 +340,56 @@ Fasen är inte färdigplanerad. Den delas upp så här:
 - Vald sortering minns under besöket, inte mellan besök.
 - När inget alls är ifyllt visar Läget en rad om hur man kommer igång (`DESIGNLAG.md` L11).
 - Läget ritas inte om under fingrarna: en ändring i en annan flik ritar om utan att scrolla, och inte alls medan man skriver i en anteckning.
+
+**Beslut (fas 6, 2 nov 2026):**
+- Tidslinjen har 3 dagars marginal före kursstart och efter tentan, så att idag-linjen kan ligga före första modulen och efter tentan (`layout.md` §10). Långt utanför kursen stannar den i marginalen.
+- Uppehåll är ett glapp på mer än 7 dagar mellan två föreläsningar. Det heter "Jul" om det täcker 24 dec. Den streckade ytan ritas ovanpå Tentan-bandet, eftersom m6 och Tentan är ett band.
+- Modulband visar nummer, och namnet bara om bandet är minst 9rem brett. Med nuvarande kurs händer det aldrig. Tas upp i fas 8.
+- Klick på ett modulband byter listan till kursordning om den stod i en annan sortering, fäller ut modulen, scrollar dit och lägger fokus på modulrubriken.
+- Repot finns på GitHub som `jonis4/Sida`. Jonatan pushade själv via VS Code.
+
+**Beslut (fas 7, 2 nov 2026):**
+- Exportformatet, och kopian på disken, är `{app: "kursverktyget", kurs, version, exporterad, senast, kapitel}`. Samma format i båda, så kopian på disken kan läsas in med Läs in. Filnamnen är `m0068m-data-<datum>.json` (Ladda ner) och `m0068m-data.json` (kopia på disken).
+- Läs in kontrollerar app, kurskod och version innan något ersätts. Kapitel som inte finns i `kurs.json` sparas men visas inte, och frågan nämner dem.
+- Ångra (15 s) finns efter både Rensa och Läs in, i sidfoten i alla vyer och i Inställningar.
+- Sidfotens ordning: sparfel, sedan kopian på disken (fel, behöver OK), sedan Ångra, sedan vanlig sparstatus. Bara det första som gäller visas.
+- Frågor och meddelanden i Inställningar visas under raden de kom från. Bekräftelseknapparna ("Radera all data", "Ersätt all data") är röda, och övriga handlingar är textknappar.
+- Kopian på disken är testad med webbläsarens interna filsystem som fil. Jonatan testar en riktig fil i Edge.
+
+**Beslut (fas 8, 2 nov 2026):**
+- **Princip från Jonatan:** visa bara den information som faktiskt behövs. Det som syns direkt efter ett klick behöver inte stå i förväg.
+- **Känsla 1–5 har färg** (kurstrackerns skala, rött → grönt, kontrastmätt mot vit text). Det ersätter "gråskala 1→5" i `layout.md` §4.3. Siffran och namnet står alltid med (L12).
+- Känsloknapparna i Nu visar bara siffra och namn. Den valda nivån fylls med sin färg. I Läget är rutan i Känns-kolumnen färgad.
+- Tidslinjen visar inga modulnamn (de syns i listan när man klickar). Modulen som pågår har en tydligt mörk yta, och hover har en egen, svagare ton.
+- Läget har inga kolumnrubriker. På tentan skrivs "1 av 3 tentor", och sorteringsfliken heter "Tentan" (skärmläsarnamn "Viktigast på tentan").
+- Modulrubriker: "Modul 1 · Partiella derivator" i fetstil och datumet tyst bredvid. Datum bryts aldrig mitt i.
+- Esc stänger frågorna i Inställningar. Fokus står kvar när Inställningar ritas om.
+- B1: Föregående och Nästa i Nu går i kursordning även när man kommer från en annan sortering (`layout.md` §5.1 före `DESIGNLAG.md` L9).
+- B3–B7 behålls: varannan veckoetikett på mobil, raden om hur man kommer igång, grå yta för frågorna i Inställningar, Tentan som platshållare.
+- Ingen "dagar kvar till tentan" (C4): behövs inte.
+- Kvar efter granskningen: vanliga modulband och spåret bakom segmentvalet har låg kontrast mot sidan (1,2:1), men deras innehåll bärs av text, så WCAG 1.4.11 kräver ingen kant.
+
+**Beslut (ny tidslinje, variant F, 2 nov 2026)** enligt `AI/tidslinje-instruktion.md`. Ersätter tidslinjebesluten i fas 6 och 8:
+- Tidslinjen är rent visuell. Modulbanden är inte klickbara och Tentans block är ingen länk. Tentan nås via raden "Tentan · Öppna →" i listan. `visaModul` och klicklyssnaren är borttagna.
+- Skalan går från första föreläsningen till slutet av tentadagen. Ingen marginal, och ingen idag-linje före kursstart eller efter tentan.
+- Inga veckoetiketter, modulnamn eller datum. Bara modulnummer, som döljs (container query) om bandet är för smalt.
+- Föreläsningar och helger ligger på samma rad. Alla föreläsningsstreck är grå, utom nästa föreläsning som är svart och högre. "Nästa" jämförs med datum och klockslag (`Kurs.klockslag()`, testkrok `window.IDAG_TID`).
+- Modul 6 är ett eget band, och Tentan ett svart block på tentadagen. `visas_med` styr fortfarande listan och rubriken, men inte tidslinjen. `kurs.json` är oförändrad.
+- Modulen som pågår är ljusgrå (`#d2d2d2`, mörkt `#3d3d3d`), ljusare än idag och Tentan. Det ersätter "tydligt mörk yta" från fas 8.
+- **Avsteg från `DESIGNLAG.md` §4 (ikoner utan text):** en ?-knapp under tidslinjen fäller ut en förklaring på plats. Motivering: tidslinjen saknar text, så den behöver en förklaring, och ? är allmänt begripligt. Knappen har skärmläsarnamnet "Vad betyder tidslinjen?". Godkänt av Jonatan genom instruktionen.
+- Krockar etiketten "idag" med "Tenta" (de sista dagarna före tentan och på tentadagen) döljs "Tenta". Det mäts i webbläsaren och räknas om när bredden ändras.
+- Helgerna i mörkt läge är `#2b2b2b` i stället för `#222`, så att de syns mot förklaringens yta.
+- `layout.md` §4.2 och §10 är uppdaterade efter instruktionen (det enda undantaget från att `AI/` inte ändras).
+
+**Beslut (en modul åt gången, 2 nov 2026):**
+- Bara en modul är utfälld åt gången i Läget. Alla vanliga moduler är hopfällbara, även de som har börjat. Det ersätter fasen 5-beslutet om att moduler som börjat är vanliga rubriker.
+- Utfälld från början: modulen som pågår, och modul 1 före kursstart. Under repetitionen och efter tentan är ingen utfälld, eftersom m6 visas med Tentan-raden.
+- Valet minns under besöket (även efter ett kapitelbesök och ett sorteringsbyte). Esc fäller ihop. Byggt med `name` på `<details>`, plus en reserv i JS för äldre webbläsare.
+- `layout.md` §4.3 säger fortfarande "Moduler som inte har börjat är hopfällda". Den är inte ändrad, eftersom `AI/` bara ändras när Jonatan ber om det.
+
+**Beslut (fas 9, 2 nov 2026):**
+- Bara `sida/` publiceras, via GitHub Actions (`.github/workflows/pages.yml`) vid varje push till main. Repot i sig är lika synligt som förut.
+- Jonatan ställer in Pages-källan till "GitHub Actions" och pushar själv.
 
 **Öppna frågor:**
 - Vad betyder ∗ efter vissa uppgiftsnummer i studiehandledningen?

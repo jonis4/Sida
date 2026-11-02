@@ -64,8 +64,6 @@
     const vy = window.Vyer[adr.vy];
     if (vy) {
       vy.rita(app, adr);
-    } else if (adr.vy === "installningar") {
-      app.innerHTML = '<h1>Inställningar</h1><p class="platshallare">Byggs i fas 7.</p>';
     } else {
       app.innerHTML = '<h1>Sidan finns inte</h1><p><a href="#/">Till Läget</a></p>';
     }
@@ -77,6 +75,9 @@
   document.title = Kurs.data.kurs.kod + " " + Kurs.data.kurs.namn;
 
   Lagring.vidAndring(ritaSidfot);
+  // Kopian på disken byter läge (aktiv, behöver OK, fel): sidfoten och Inställningar visar det direkt.
+  Sparfil.vidAndring(() => { ritaSidfot(); Vyer.installningar.uppdatera(); });
+  Sparfil.init();
   Lagring.vidAndringIAnnanFlik(() => {
     // Skriver man i anteckningen ska fältet inte ritas om under fingrarna.
     if (document.activeElement && document.activeElement.tagName === "TEXTAREA") return;

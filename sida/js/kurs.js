@@ -10,6 +10,7 @@
   const DAGAR = ["söndag", "måndag", "tisdag", "onsdag", "torsdag", "fredag", "lördag"];
   const DAGAR_KORT = ["sön", "mån", "tis", "ons", "tors", "fre", "lör"];
   const MANADER = ["jan", "feb", "mar", "apr", "maj", "jun", "jul", "aug", "sep", "okt", "nov", "dec"];
+  const MANADER_HELA = ["januari", "februari", "mars", "april", "maj", "juni", "juli", "augusti", "september", "oktober", "november", "december"];
 
   const utc = (iso) => new Date(iso + "T00:00:00Z");
   // Dagar mellan två datum, och ett datum plus n dagar.
@@ -23,6 +24,13 @@
     return n.getFullYear() + "-" + String(n.getMonth() + 1).padStart(2, "0") + "-" + String(n.getDate()).padStart(2, "0");
   }
 
+  // Klockslaget just nu, "14:05". window.IDAG_TID = "15:00" låtsas att det är en annan tid (för test).
+  function klockslag() {
+    if (typeof window.IDAG_TID === "string" && /^\d\d:\d\d$/.test(window.IDAG_TID)) return window.IDAG_TID;
+    const n = new Date();
+    return String(n.getHours()).padStart(2, "0") + ":" + String(n.getMinutes()).padStart(2, "0");
+  }
+
   // ISO-vecka (måndag först, vecka 1 innehåller årets första torsdag).
   function vecka(iso) {
     const d = utc(iso);
@@ -31,11 +39,12 @@
     return Math.floor(dagIAret / 7) + 1;
   }
 
-  // "Torsdag 5 nov", "tors 5 nov", "5 nov"
+  // "Torsdag 5 nov", "torsdag 5 november", "tors 5 nov", "5 nov"
   function datumText(iso, form) {
     const d = utc(iso);
     const dag = d.getUTCDate() + " " + MANADER[d.getUTCMonth()];
     if (form === "lang") { const v = DAGAR[d.getUTCDay()]; return v[0].toUpperCase() + v.slice(1) + " " + dag; }
+    if (form === "hel") return DAGAR[d.getUTCDay()] + " " + d.getUTCDate() + " " + MANADER_HELA[d.getUTCMonth()]; // "torsdag 5 november"
     if (form === "kort") return DAGAR_KORT[d.getUTCDay()] + " " + dag;
     return dag;
   }
@@ -117,7 +126,7 @@
 
   window.Kurs = {
     data: K,
-    idag, vecka, datumText, intervallText, dagarMellan, plusDagar, uppehall,
+    idag, klockslag, vecka, datumText, intervallText, dagarMellan, plusDagar, uppehall,
     kapitel, modul, modulNr, forstaKapitel, kapitelIModul, tentamodul,
     forelasningarFor, forelasningarIModul,
     foregaende, nasta, modulDatum, pagar, paTentan, visasMed,

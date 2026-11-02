@@ -4,104 +4,129 @@
   "use strict";
   const { esc, KANSLOR } = Delar;
 
-  const SORTERINGAR = { kurs: "Kursordning", kansla: "Efter känsla", tentan: "Viktigast på tentan" };
+  // Synligt namn och fullständigt namn (för skärmläsare) per sortering.
+  const SORTERINGAR = { kurs: ["Kursordning"], kansla: ["Efter känsla"], tentan: ["Tentan", "Viktigast på tentan"] };
+  // Datum bryts aldrig mitt i ("2–" / "10 nov").
+  const datum = (text) => '<span class="hel">' + esc(text) + "</span>";
   let sortering = "kurs";       // minns vald sortering under besöket
-  const utfallda = new Set();   // moduler som inte börjat men som man fällt ut
+  // Bara en modul är utfälld åt gången. null = inget valt än: då är modulen som pågår utfälld
+  // (före kursstart den första). "" = man har fällt ihop allt. Minns under besöket.
+  let oppen = null;
 
-  const harBorjat = (mid, dag) => { const d = Kurs.modulDatum(mid); return d && d.forsta <= dag; };
+  function oppenModul(dag) {
+    if (oppen !== null) return oppen;
+    const K = Kurs.data;
+    if (dag < K.forelasningar[0].datum) return K.moduler[0].id;
+    const p = Kurs.pagar(dag);
+    return p && p.typ !== "tenta" && !p.visas_med ? p.id : "";
+  }
 
   // ---------- Rubriken ----------
   function rubrik(dag) {
     const K = Kurs.data;
     const antal = K.moduler.filter((m) => m.typ !== "tenta").length;
     const forsta = K.forelasningar[0].datum;
-    let rad;
+    let rad; // färdig HTML
     if (dag < forsta) {
-      rad = "Kursen börjar " + Kurs.datumText(forsta, "kort");
+      rad = "Kursen börjar " + datum(Kurs.datumText(forsta, "kort"));
     } else if (dag > K.kurs.tenta) {
-      rad = "Tentan har varit (" + Kurs.datumText(K.kurs.tenta, "kort") + ")";
+      rad = "Tentan har varit (" + datum(Kurs.datumText(K.kurs.tenta, "kort")) + ")";
     } else {
       const p = Kurs.pagar(dag);
       if (p.typ === "tenta" || p.visas_med) {
         const t = Kurs.tentamodul();
         const fran = p.visas_med ? Kurs.modulDatum(p.id).forsta : K.kurs.tenta;
-        rad = t.namn + " · " + Kurs.intervallText(fran, K.kurs.tenta)
-          + (p.visas_med ? " · " + p.namn.toLowerCase() + " inför tentan" : "");
+        rad = esc(t.namn) + " · " + datum(Kurs.intervallText(fran, K.kurs.tenta))
+          + (p.visas_med ? " · " + esc(p.namn.toLowerCase()) + " inför tentan" : "");
       } else {
         const d = Kurs.modulDatum(p.id);
-        rad = "Modul " + Kurs.modulNr(p.id) + " av " + antal + " · " + p.namn + " · " + Kurs.intervallText(d.forsta, d.sista);
+        rad = "Modul " + Kurs.modulNr(p.id) + " av " + antal + " · " + esc(p.namn) + " · " + datum(Kurs.intervallText(d.forsta, d.sista));
       }
     }
-    return "<h1>" + esc(K.kurs.namn) + '</h1><p class="laget-pagar">' + esc(rad) + "</p>";
+    return "<h1>" + esc(K.kurs.namn) + '</h1><p class="laget-pagar">' + rad + "</p>";
   }
 
   // ---------- Tidslinjen (layout.md §4.2) ----------
-  // I skala från kursstart till tentan, med några dagars marginal så att idag-linjen
-  // kan ligga före första modulen och efter tentan. En karta, aldrig en värdering.
-  const MARGINAL = 3;
+  // Rent visuell: var är jag, hur nära är nästa föreläsning, vilken del av kursen är jag i.
+  // I skala från första föreläsningen till slutet av tentadagen. Allt räknas fram ur kurs.json.
+  let forklaringOppen = false;
+
+  // Nästa föreläsning: den första som inte har slutat, jämfört med datum och klockslag.
+  function nastaForelasning(dag) {
+    const tid = Kurs.klockslag();
+    return Kurs.data.forelasningar.find((f) => f.datum > dag || (f.datum === dag && f.slut > tid)) || null;
+  }
 
   function tidslinje(dag) {
     const K = Kurs.data;
-    const start = Kurs.plusDagar(K.forelasningar[0].datum, -MARGINAL);
-    const slut = Kurs.plusDagar(K.kurs.tenta, MARGINAL + 1); // dagen efter sista dagen
+    const start = K.forelasningar[0].datum;
+    const slut = Kurs.plusDagar(K.kurs.tenta, 1); // dagen efter tentadagen
     const total = Kurs.dagarMellan(start, slut);
-    const x = (iso) => (100 * Kurs.dagarMellan(start, iso) / total);
+    const x = (iso) => 100 * Kurs.dagarMellan(start, iso) / total;
     const pos = (iso) => x(iso).toFixed(3) + "%";
+    const mitt = (iso) => (x(iso) + 50 / total).toFixed(3) + "%"; // mitt på dagen
     const bredd = (fran, till) => (x(Kurs.plusDagar(till, 1)) - x(fran)).toFixed(3) + "%"; // till räknas med
     const pagar = Kurs.pagar(dag);
+    const nasta = nastaForelasning(dag);
+    const iKursen = dag >= start && dag <= K.kurs.tenta;
 
-    // Veckor: en liten etikett vid varje måndag
-    let veckor = "";
-    let man = Kurs.plusDagar(start, (8 - new Date(start + "T00:00:00Z").getUTCDay()) % 7);
-    for (let i = 0; man < slut; man = Kurs.plusDagar(man, 7), i++) {
-      veckor += '<span class="tl-vecka' + (i % 2 ? " udda" : "") + '" style="left:' + pos(man) + '">v' + Kurs.vecka(man) + "</span>";
-    }
-
-    // Uppehåll (jul): svagt streckad yta
-    let ytor = "";
-    for (const u of Kurs.uppehall()) {
-      ytor += '<span class="tl-uppehall" style="left:' + pos(u.fran) + ";width:" + bredd(u.fran, u.till) + '">'
-        + '<span class="dold">' + (u.jul ? "Jul" : "Uppehåll") + " "
-        + esc(Kurs.intervallText(u.fran, u.till)) + "</span></span>";
-    }
-
-    // Modulband. Moduler som visas med en annan (m6) blir en del av den modulens band.
+    // Modulband, ett per vanlig modul (även m6: visas_med gäller bara listan). Tentan är ett eget block.
     let band = "";
     for (const m of K.moduler) {
-      if (m.visas_med) continue;
+      if (m.typ === "tenta") continue;
       const d = Kurs.modulDatum(m.id);
-      const med = Kurs.visasMed(m.id);
-      const fran = med.reduce((a, v) => (Kurs.modulDatum(v.id).forsta < a ? Kurs.modulDatum(v.id).forsta : a), d.forsta);
-      const arPagar = pagar && (pagar.id === m.id || pagar.visas_med === m.id);
-      const tid = Kurs.intervallText(fran, d.sista);
-      const stil = ' style="left:' + pos(fran) + ";width:" + bredd(fran, d.sista) + '"';
-      const klass = "tl-band" + (arPagar ? " pagar" : "");
-      if (m.typ === "tenta") {
-        band += '<a class="' + klass + '" href="#/tentan"' + stil + ' aria-label="' + esc(m.namn + " · " + tid + (arPagar ? ", pågår" : "") + ". Öppna Tentan") + '">'
-          + '<span class="tl-namn">' + esc(m.namn) + "</span></a>";
-      } else {
-        const nr = Kurs.modulNr(m.id);
-        band += '<button type="button" class="' + klass + '" data-modul="' + esc(m.id) + '"' + stil
-          + ' aria-label="' + esc("Modul " + nr + " · " + m.namn + " · " + tid + (arPagar ? ", pågår" : "") + ". Visa i listan") + '">'
-          + '<span class="tl-nr">' + nr + '</span><span class="tl-namn">' + esc(m.namn) + "</span></button>";
-      }
+      if (!d) continue;
+      band += '<span class="tl-band' + (pagar && pagar.id === m.id ? " pagar" : "") + '" style="left:' + pos(d.forsta)
+        + ";width:calc(" + bredd(d.forsta, d.sista) + ' - 2px)"><span class="tl-nr">' + Kurs.modulNr(m.id) + "</span></span>";
     }
+    const jul = Kurs.uppehall().map((u) => '<span class="tl-uppehall" style="left:' + pos(u.fran) + ";width:" + bredd(u.fran, u.till) + '"></span>').join("");
+    const tenta = '<span class="tl-tenta" style="left:' + pos(K.kurs.tenta) + ";width:" + bredd(K.kurs.tenta, K.kurs.tenta) + '"></span>';
 
-    // Föreläsningar: korta, omärkta streck mitt på dagen
-    const streck = K.forelasningar.map((f) =>
-      '<span class="tl-streck" style="left:calc(' + pos(f.datum) + " + " + (50 / total).toFixed(3) + '%)"></span>').join("");
+    // Helger (lör–sön) före tentan, och föreläsningar på samma rad
+    let helger = "";
+    for (let d = start; d < K.kurs.tenta; d = Kurs.plusDagar(d, 1)) {
+      const v = new Date(d + "T00:00:00Z").getUTCDay();
+      if (v === 0 || v === 6) helger += '<span class="tl-helg" style="left:' + pos(d) + ";width:" + bredd(d, d) + '"></span>';
+    }
+    const streck = K.forelasningar.map((f) => '<span class="tl-streck' + (f === nasta ? " nasta" : "") + '" style="left:' + mitt(f.datum) + '"></span>').join("");
 
-    // Idag: en tunn linje genom banden (mitt på dagen). Utanför kursen hamnar den i marginalen.
-    let idag = "";
-    const d = dag < start ? start : dag >= slut ? Kurs.plusDagar(slut, -1) : dag;
-    idag = '<span class="tl-idag" style="left:calc(' + pos(d) + " + " + (50 / total).toFixed(3) + '%)"><span class="dold">Idag, '
-      + esc(Kurs.datumText(dag, "kort")) + "</span></span>";
+    // Idag: bara under kursen. Krockar "idag" med "Tenta" (nära slutet) står bara "idag", se tidslinjeText().
+    const idag = iKursen ? '<span class="tl-idag" style="left:' + mitt(dag) + '"></span><span class="tl-text tl-idag-text" style="left:' + mitt(dag) + '">idag</span>' : "";
+    const tentaText = '<span class="tl-text tl-tenta-text">Tenta</span>';
 
-    return '<div class="tidslinje" role="group" aria-label="Tidslinje från kursstart till tentan">'
-      + '<div class="tl-veckor" aria-hidden="true">' + veckor + "</div>"
-      + '<div class="tl-banden">' + band + ytor + idag + "</div>"
-      + '<div class="tl-forelasningar" aria-hidden="true">' + streck + "</div>"
-      + "</div>";
+    // Samma sak i klartext för skärmläsare
+    const lasbart = [];
+    if (iKursen) lasbart.push("Idag " + Kurs.datumText(dag, "hel") + ".");
+    if (pagar && pagar.typ !== "tenta") lasbart.push("Modul " + Kurs.modulNr(pagar.id) + " av " + K.moduler.filter((m) => m.typ !== "tenta").length + ", " + pagar.namn + ".");
+    if (nasta) lasbart.push("Nästa föreläsning " + Kurs.datumText(nasta.datum, "hel") + ".");
+    lasbart.push("Tentan " + Kurs.datumText(K.kurs.tenta, "hel") + ".");
+
+    return '<div class="tidslinje" role="img" aria-label="' + esc(lasbart.join(" ")) + '">'
+      + tentaText + band + jul + tenta + helger + streck + idag + "</div>"
+      + '<div class="tl-hjalp-rad"><button type="button" class="tl-hjalp" aria-label="Vad betyder tidslinjen?" aria-controls="tl-forklaring" aria-expanded="' + forklaringOppen + '">'
+      + '<span aria-hidden="true">?</span></button></div>'
+      + '<div class="tl-forklaring" id="tl-forklaring"' + (forklaringOppen ? "" : " hidden") + ">" + forklaring() + "</div>";
+  }
+
+  // "Tenta" döljs om "idag" står i vägen. Räknas om när bredden ändras.
+  function tidslinjeText() {
+    const i = document.querySelector(".tl-idag-text"), t = document.querySelector(".tl-tenta-text");
+    if (!t) return;
+    t.style.visibility = "";
+    if (i && i.getBoundingClientRect().right + 4 > t.getBoundingClientRect().left) t.style.visibility = "hidden";
+  }
+  window.addEventListener("resize", tidslinjeText);
+
+  // Förklaringen ritar sina exempel med samma klasser som tidslinjen, så att de alltid ser likadana ut.
+  function forklaring() {
+    const ex = (inre, text, klass = "") => '<span class="tl-ex"><span class="tl-exempel' + klass + '" aria-hidden="true">' + inre + "</span>" + text + "</span>";
+    return ex('<span class="tl-idag"></span>', "Idag", " smal")
+      + ex('<span class="tl-band"><span class="tl-nr">1</span></span>', "Modul")
+      + ex('<span class="tl-streck"></span>', "Föreläsning", " smal")
+      + ex('<span class="tl-streck nasta"></span>', "Nästa föreläsning", " smal")
+      + ex('<span class="tl-helg"></span>', "Helg")
+      + ex('<span class="tl-band"></span><span class="tl-uppehall"></span>', "Jul, inga föreläsningar")
+      + ex('<span class="tl-tenta"></span>', "Tenta");
   }
 
   // ---------- En kapitelrad ----------
@@ -129,32 +154,28 @@
       + '<span class="kol-kansla" aria-hidden="true">'
       + (u.kansla ? '<span class="kanslaruta k' + u.kansla + '">' + u.kansla + '</span><span class="kansla-namn">' + esc(KANSLOR[u.kansla]) + "</span>" : "")
       + "</span>"
-      + '<span class="kol-tentan siffror" aria-hidden="true">' + (pt.antal ? pt.antal + " av " + pt.av : "") + "</span>"
+      + '<span class="kol-tentan siffror" aria-hidden="true">' + (pt.antal ? pt.antal + " av " + pt.av + " tentor" : "") + "</span>"
       + "</a></li>";
   }
-
-  const kolumnRubriker = () => '<div class="kolumnrubriker" aria-hidden="true"><span class="kol-kapitel">Kapitel</span>'
-    + '<span class="kol-ikryssade">Ikryssade</span><span class="kol-kansla">Känns</span><span class="kol-tentan">På tentan</span></div>';
 
   // ---------- Kursordning: grupperad per modul ----------
   function kursordning(dag, senast) {
     const K = Kurs.data;
+    const utfalld = oppenModul(dag);
     let h = "";
     for (const m of K.moduler) {
       if (m.visas_med) continue; // visas tillsammans med sin modul (m6 med Tentan)
       if (m.typ === "tenta") { h += tentaRad(m); continue; }
       const d = Kurs.modulDatum(m.id);
       const kap = Kurs.kapitelIModul(m.id);
-      const titel = "Modul " + Kurs.modulNr(m.id) + " · " + m.namn + " · " + Kurs.intervallText(d.forsta, d.sista);
+      // "Modul 1 · Partiella derivator" i fetstil, datumet tyst bredvid.
+      const titel = '<span class="modul-titel">Modul ' + Kurs.modulNr(m.id) + " · " + esc(m.namn)
+        + ' <span class="modul-datum">' + datum(Kurs.intervallText(d.forsta, d.sista)) + "</span></span>";
       const lista = '<ul class="kapitellista">' + kap.map((c) => kapitelRad(c, senast)).join("") + "</ul>";
-      if (harBorjat(m.id, dag)) {
-        h += '<section class="modul" id="modul-' + esc(m.id) + '"><h3 class="modulrubrik">' + esc(titel) + "</h3>" + lista + "</section>";
-      } else {
-        // Moduler som inte har börjat är hopfällda till en rad (layout.md §4.3).
-        h += '<details class="modul" id="modul-' + esc(m.id) + '" data-modul="' + esc(m.id) + '"' + (utfallda.has(m.id) ? " open" : "") + ">"
-          + '<summary class="modulrubrik"><span>' + esc(titel) + '</span><span class="tyst">' + kap.length + " kapitel"
-          + ' · <span class="visa">Visa ↓</span><span class="dolj">Dölj ↑</span></span></summary>' + lista + "</details>";
-      }
+      // Alla moduler är hopfällbara, och name gör att bara en kan vara utfälld åt gången.
+      h += '<details class="modul" name="moduler" id="modul-' + esc(m.id) + '" data-modul="' + esc(m.id) + '"' + (m.id === utfalld ? " open" : "") + ">"
+        + '<summary class="modulrubrik">' + titel + '<span class="modul-meta">' + kap.length + " kapitel"
+        + ' · <span class="visa">Visa ↓</span><span class="dolj">Dölj ↑</span></span></summary>' + lista + "</details>";
     }
     return h;
   }
@@ -162,12 +183,12 @@
   // "Tentan · repetition från 17 dec · ons 13 jan · 3 gamla tentor · Öppna →"
   function tentaRad(m) {
     const K = Kurs.data;
-    const delar = [m.namn];
-    for (const v of Kurs.visasMed(m.id)) delar.push(v.namn.toLowerCase() + " från " + Kurs.datumText(Kurs.modulDatum(v.id).forsta));
-    delar.push(Kurs.datumText(K.kurs.tenta, "kort"));
-    if (K.tentor.length) delar.push(K.tentor.length + (K.tentor.length === 1 ? " gammal tenta" : " gamla tentor"));
-    return '<section class="modul" id="modul-' + esc(m.id) + '"><a class="modulrubrik tentarad" href="#/tentan"><span>'
-      + esc(delar.join(" · ")) + '</span><span class="tyst">Öppna →</span></a></section>';
+    const delar = [datum(Kurs.datumText(K.kurs.tenta, "kort"))];
+    for (const v of Kurs.visasMed(m.id)) delar.push(esc(v.namn.toLowerCase()) + " från " + datum(Kurs.datumText(Kurs.modulDatum(v.id).forsta)));
+    if (K.tentor.length) delar.push(datum(K.tentor.length + (K.tentor.length === 1 ? " gammal tenta" : " gamla tentor")));
+    return '<section class="modul" id="modul-' + esc(m.id) + '"><a class="modulrubrik tentarad" href="#/tentan">'
+      + '<span class="modul-titel">' + esc(m.namn) + ' <span class="modul-datum">' + delar.join(" · ") + "</span></span>"
+      + '<span class="modul-meta">Öppna →</span></a></section>';
   }
 
   // ---------- Sorterat utan grupper ----------
@@ -203,15 +224,16 @@
       + '<section class="kapitlen" aria-labelledby="rubrik-kapitlen">'
       + '<div class="kapitlen-topp"><h2 id="rubrik-kapitlen" class="etikett">Kapitlen</h2>'
       + '<div class="flikar" role="group" aria-label="Sortering">'
-      + Object.entries(SORTERINGAR).map(([k, namn]) =>
-        '<button type="button" class="flik" data-sortering="' + k + '" aria-pressed="' + (k === sortering) + '">' + namn + "</button>").join("")
+      + Object.entries(SORTERINGAR).map(([k, [namn, lang]]) =>
+        '<button type="button" class="flik" data-sortering="' + k + '" aria-pressed="' + (k === sortering) + '"'
+        + (lang ? ' aria-label="' + lang + '"' : "") + ">" + namn + "</button>").join("")
       + "</div></div>"
       + (tomt ? '<p class="tyst komigang">Öppna ett kapitel för att kryssa i uppgifter och säga hur det känns.</p>' : "")
-      + kolumnRubriker()
       + '<div class="lista-innehall">' + listan(dag) + "</div>"
       + "</section></div>";
 
     const vy = el.querySelector(".laget");
+    tidslinjeText();
     const innehall = vy.querySelector(".lista-innehall");
 
     function sattSortering(s) {
@@ -225,42 +247,44 @@
       if (b && b.dataset.sortering !== sortering) sattSortering(b.dataset.sortering);
     });
 
-    // Klick på ett modulband gör samma sak som modulens rubrik i listan: fäller ut och scrollar dit.
-    // Listan måste stå i kursordning för att modulen ska finnas där.
-    vy.querySelector(".tidslinje").addEventListener("click", (e) => {
-      const b = e.target.closest("button[data-modul]");
-      if (!b) return;
-      if (sortering !== "kurs") sattSortering("kurs");
-      visaModul(b.dataset.modul);
-    });
+    // ?-knappen fäller ut förklaringen på plats.
+    vy.querySelector(".tl-hjalp").addEventListener("click", () => visaForklaring(!forklaringOppen));
 
-    // Minns vilka hopfällda moduler man fällt ut.
+    // Minns vilken modul som är utfälld. Fäller man ut en fälls de andra ihop
+    // (name på <details> gör det redan i nya webbläsare, det här är för äldre).
     innehall.addEventListener("toggle", (e) => {
       const d = e.target;
       if (!d.dataset || !d.dataset.modul) return;
-      if (d.open) utfallda.add(d.dataset.modul); else utfallda.delete(d.dataset.modul);
+      if (d.open) {
+        oppen = d.dataset.modul;
+        innehall.querySelectorAll("details[open]").forEach((x) => { if (x !== d) x.open = false; });
+      } else if (oppen === d.dataset.modul || oppen === null) {
+        oppen = "";
+      }
     }, true);
   }
 
-  // Esc fäller ihop den utfällda modul som fokus står i, och lämnar fokus på dess rubrik.
+  // Esc stänger tidslinjens förklaring, eller fäller ihop den utfällda modul som fokus står i.
+  // Fokus lämnas på knappen eller rubriken.
   document.addEventListener("keydown", (e) => {
     if (e.key !== "Escape") return;
     const d = document.activeElement && document.activeElement.closest(".laget details[open]");
-    if (!d) return;
-    d.open = false;
-    d.querySelector("summary").focus();
+    if (d) {
+      d.open = false;
+      d.querySelector("summary").focus();
+    } else if (forklaringOppen && document.querySelector(".tl-hjalp")) {
+      visaForklaring(false);
+      document.querySelector(".tl-hjalp").focus();
+    }
   });
 
-  // Fäller ut en modul och scrollar dit. Fokus flyttas till modulens rubrik, så att man kan fortsätta med tangentbordet.
-  function visaModul(mid) {
-    const d = document.querySelector("#modul-" + CSS.escape(mid));
-    if (!d) return;
-    if (d.tagName === "DETAILS") d.open = true;
-    const r = d.querySelector(".modulrubrik");
-    if (r.tagName === "H3") r.setAttribute("tabindex", "-1");
-    r.focus({ preventScroll: true });
-    d.scrollIntoView({ block: "start", behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+  function visaForklaring(oppen) {
+    forklaringOppen = oppen;
+    const b = document.querySelector(".tl-hjalp");
+    if (!b) return;
+    b.setAttribute("aria-expanded", oppen);
+    document.getElementById("tl-forklaring").hidden = !oppen;
   }
 
-  (window.Vyer = window.Vyer || {}).laget = { rita, visaModul };
+  (window.Vyer = window.Vyer || {}).laget = { rita };
 })();

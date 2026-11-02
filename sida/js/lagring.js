@@ -148,6 +148,57 @@
     meddela(lyssnare);
   }
 
+  // ---------- Export, import, rensa, ångra (backend.md §5.4) ----------
+  const APP = "kursverktyget";
+  const KOD = Kurs.data.kurs.kod;
+  const ANGRA_MS = 15000;
+  let fore = null; // { data, typ, till }: läget före senaste rensa/import, för Ångra
+
+  // Samma format i nedladdad fil och i kopian på disken, så att båda kan läsas in.
+  function exportera() {
+    return { app: APP, kurs: KOD, version: VERSION, exporterad: new Date().toISOString(), senast: data.senast, kapitel: data.kapitel };
+  }
+
+  // Kontrollerar en fil innan den får ersätta något. Returnerar { ok, data, antal, okanda, exporterad } eller { ok: false, fel }.
+  function granska(obj) {
+    if (!obj || typeof obj !== "object" || obj.app !== APP || !obj.kapitel || typeof obj.kapitel !== "object") {
+      return { ok: false, fel: "Filen är inte en kopia från kursverktyget." };
+    }
+    if (obj.kurs !== KOD) return { ok: false, fel: "Filen hör till kursen " + obj.kurs + ", inte " + KOD + "." };
+    if (typeof obj.version !== "number" || obj.version > VERSION) {
+      return { ok: false, fel: "Filen är sparad av en nyare version av sidan och kan inte läsas in här." };
+    }
+    const m = migrera(obj);
+    const ids = Object.keys(m.data.kapitel);
+    return {
+      ok: true,
+      data: m.data,
+      antal: ids.length,
+      okanda: ids.filter((id) => !Kurs.kapitel(id)), // finns inte i kurs.json; sparas ändå, visas inte
+      exporterad: isNaN(Date.parse(obj.exporterad)) ? null : new Date(obj.exporterad),
+    };
+  }
+
+  function ersatt(ny, typ) {
+    las();
+    fore = { data, typ, till: Date.now() + ANGRA_MS };
+    data = ny;
+    skrivNu();
+    meddela(lyssnare);
+  }
+  const ersattAllt = (g) => ersatt(g.data, "import");
+  const rensa = () => ersatt(tom(), "rensa");
+
+  const kanAngra = () => !!fore && Date.now() < fore.till;
+  function angra() {
+    if (!kanAngra()) return false;
+    data = fore.data;
+    fore = null;
+    skrivNu();
+    meddela(lyssnare);
+    return true;
+  }
+
   // En annan flik har sparat: läs in, så att den här fliken visar och sparar samma sak.
   window.addEventListener("storage", (e) => {
     if (e.key !== NYCKEL && e.key !== null) return; // null = localStorage.clear()
@@ -161,6 +212,10 @@
     NYCKEL,
     kapitel, senast,
     vaxla, sattKansla, sattAnteckning, sattSenast,
+    exportera, granska, ersattAllt, rensa, angra, kanAngra,
+    antalKapitel: () => Object.keys(data.kapitel).length,
+    get angraTyp() { return kanAngra() ? fore.typ : null; },
+    get angraKvar() { return kanAngra() ? fore.till - Date.now() : 0; },
     vidAndring: (f) => lyssnare.push(f),
     vidAndringIAnnanFlik: (f) => franAnnanFlik.push(f),
     get status() { return { ...status }; },
