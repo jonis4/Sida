@@ -278,7 +278,7 @@ Fasen är inte färdigplanerad. Den delas upp så här:
 - [x] Fas 6 – Tidslinjen (2 nov 2026)
 - [x] Fas 7 – Inställningar och data (2 nov 2026)
 - [x] Fas 8 – Mobil, kanttillstånd, finslipning (2 nov 2026)
-- [ ] Fas 9 – Publicering (valfritt)
+- [x] Fas 9 – Publicering (2 nov 2026)
 - [ ] Fas 10 – Tentan
 
 **Beslut (tagna innan bygget, 2 nov 2026):**
@@ -389,8 +389,21 @@ Fasen är inte färdigplanerad. Den delas upp så här:
 
 **Beslut (fas 9, 2 nov 2026):**
 - Bara `sida/` publiceras, via GitHub Actions (`.github/workflows/pages.yml`) vid varje push till main. Repot i sig är lika synligt som förut.
-- Jonatan ställer in Pages-källan till "GitHub Actions" och pushar själv.
+- Jonatan ställde in Pages-källan till "GitHub Actions". Claude pushade på Jonatans uppmaning (undantag från "bara Jonatan pushar", som gäller i övrigt).
+- Sidan finns på https://jonis4.github.io/Sida/. Kontrollerad: den fungerar som den lokala, och `AI/`, `kurs.json` och `CLAUDE.md` ger 404.
 - Besöksräknare med GoatCounter (`jonis4.goatcounter.com`), önskad av Jonatan. Den är osynlig på sidan, och bara Jonatan ser siffrorna. Den sätter inga cookies och räknar inte `file://` eller localhost.
+
+**Beslut (UX-genomgång, 2 nov 2026):**
+- Sidans bredd är 50rem i stället för 44rem, så att kapiteltitlarna i Läget får plats. Kolumnerna Ikryssade, Känns och På tentan är smala och fasta.
+- Hopfällda moduler visar en liten ruta per kapitel i känslans färg, grå om kapitlet är obedömt. Rutorna ersätter "N kapitel" och döljs när modulen är utfälld.
+- Stapeln i Läget visas först när något är ikryssat. Annars står "4 uppgifter" i tyst text.
+- Huvudnaven har vanlig textstorlek utan versaler, och den aktiva vyn står i fetstil.
+- ?-knappen ligger närmare tidslinjen.
+- "Ta bort bedömning" är liten och tyst, till höger om rubriken "Hur känns kapitlet?". Den kommer efter valet i tabbordningen.
+- På mobil visar känsloraden bara siffrorna. Namnet på vald nivå står under, och "1 Förstår inte … 5 Kan förklara" när inget är valt (`layout.md` §8).
+- Metaraden i Nu har två rader: "Modul 1 · s. 704 · Facit" och "Föreläsning 3 · ons 4 nov 14:45 · E231". Ett inaktivt Facit står i tyst text utan understrykning.
+- Ikryssade uppgifter är mörkgrå (`--tyst`) i stället för svarta.
+- Sidfoten visar inte länken till Inställningar när man redan är där. Temavalet är textval i samma stil som sorteringsflikarna.
 
 **Öppna frågor:**
 - Vad betyder ∗ efter vissa uppgiftsnummer i studiehandledningen?

@@ -20,23 +20,28 @@
   window.addEventListener("pagehide", sparaAnteckningNu);
   window.addEventListener("hashchange", sparaAnteckningNu, true);
 
-  // "Modul 1 · föreläsning 4, tors 5 nov 14:45, E231 · s. 708 · Facit"
+  // Två rader: "Modul 1 · s. 708 · Facit" och "Föreläsning 4 · tors 5 nov 14:45 · E231".
   function metarad(c) {
-    const delar = []; // färdig HTML
+    const sep = '<span class="sep" aria-hidden="true"> · </span>';
+    const forsta = []; // färdig HTML
     const nr = Kurs.modulNr(c.modul);
-    if (nr) delar.push(esc("Modul " + nr));
+    if (nr) forsta.push(esc("Modul " + nr));
+    forsta.push(esc("s. " + c.sida));
+    // Facit är en understruken länk när det finns, annars tyst text utan länk (beslut fas 0).
+    forsta.push(c.facit
+      ? '<a href="' + esc(c.facit) + '" target="_blank" rel="noopener">Facit</a>'
+      : '<span class="inaktiv">Facit<span class="dold"> (finns inte än)</span></span>');
+    let h = '<span class="metarad-rad">' + forsta.join(sep) + "</span>";
     const fs = Kurs.forelasningarFor(c.id);
     if (fs.length) {
       const salar = [...new Set(fs.map((f) => f.sal))];
-      delar.push(esc("föreläsning " + ochLista(fs.map((f) => f.nr)) + ", "
-        + ochLista(fs.map((f) => Kurs.datumText(f.datum, "kort") + " " + f.start)) + ", " + salar.join(" och ")));
+      h += '<span class="metarad-rad">' + [
+        "Föreläsning " + ochLista(fs.map((f) => f.nr)),
+        ochLista(fs.map((f) => Kurs.datumText(f.datum, "kort") + " " + f.start)),
+        salar.join(" och "),
+      ].map(esc).join(sep) + "</span>";
     }
-    delar.push(esc("s. " + c.sida));
-    // Facit-länken är inaktiv tills det finns ett facit att peka på (beslut fas 0).
-    delar.push(c.facit
-      ? '<a href="' + esc(c.facit) + '" target="_blank" rel="noopener">Facit</a>'
-      : '<span class="inaktiv">Facit<span class="dold"> (finns inte än)</span></span>');
-    return delar.join('<span class="sep" aria-hidden="true"> · </span>');
+    return h;
   }
 
   function granne(c, riktning) {
@@ -89,12 +94,14 @@
       if (e.target.name !== "kansla") return;
       Lagring.sattKansla(c.id, Number(e.target.value));
       taBort.hidden = false;
+      vy.querySelector(".kansla-vald").innerHTML = Delar.kanslaVald(Number(e.target.value));
     });
     taBort.addEventListener("click", () => {
       const valt = vy.querySelector('input[name="kansla"]:checked');
       Lagring.sattKansla(c.id, null);
       vy.querySelectorAll('input[name="kansla"]').forEach((r) => { r.checked = false; });
       taBort.hidden = true;
+      vy.querySelector(".kansla-vald").innerHTML = Delar.kanslaVald(null);
       // Fokus tillbaka till valet, så att man inte tappar bort sig när knappen försvinner.
       (valt || vy.querySelector('input[name="kansla"]')).focus();
     });

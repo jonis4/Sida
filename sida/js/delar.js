@@ -45,19 +45,25 @@
 
   // ---------- Känsla ----------
   // Riktiga radioknappar i en fieldset, plus en synlig "Ta bort bedömning" (DESIGNLAG L4, L12).
+  // På mobil visar raden bara siffrorna, och namnet på vald nivå står under (layout.md §8).
   function kansla(c) {
     const vald = Lagring.kapitel(c.id).kansla;
-    let h = '<fieldset class="kansla"><legend class="etikett">Hur känns kapitlet?</legend><div class="segment">';
+    let h = '<div class="kansla-ram"><fieldset class="kansla"><legend class="etikett">Hur känns kapitlet?</legend>'
+      + '<div class="segment">';
     for (const [n, namn] of Object.entries(KANSLOR)) {
       h += '<label class="segment-val k' + n + '"><input type="radio" name="kansla" value="' + n + '"'
         + (Number(n) === vald ? " checked" : "") + ">"
         + '<span class="segment-siffra" aria-hidden="true">' + n + "</span>"
         + '<span class="segment-namn">' + esc(namn) + "</span></label>";
     }
-    h += "</div>"
-      + '<button type="button" class="textknapp ta-bort"' + (vald ? "" : " hidden") + ">Ta bort bedömning</button>"
-      + "</fieldset>";
-    return h;
+    // "Ta bort bedömning" står efter valet i tabbordningen, men visas uppe till höger (CSS).
+    return h + '</div><p class="kansla-vald" aria-hidden="true">' + kanslaVald(vald) + "</p>"
+      + '<button type="button" class="textknapp ta-bort"' + (vald ? "" : " hidden") + ">Ta bort bedömning</button></fieldset></div>";
+  }
+  // Raden under siffrorna på mobil: vald nivå, eller skalans ändpunkter om inget är valt.
+  function kanslaVald(n) {
+    return n ? '<span class="k' + n + '">' + n + " " + esc(KANSLOR[n]) + "</span>"
+      : esc("1 " + KANSLOR[1] + " … 5 " + KANSLOR[5]);
   }
 
   // Sidfoten: Inställningar och sparstatus, en tyst rad (DESIGNLAG L5, L6).
@@ -88,9 +94,10 @@
       const disk = sf && sf.lage === "aktiv" ? " och i " + esc(sf.namn) : "";
       text = s.senast ? "Sparad i webbläsaren" + disk + " " + tid(s.senast) : "Sparas i webbläsaren" + disk;
     }
-    el.innerHTML = '<a href="#/installningar">Inställningar</a><span class="sep" aria-hidden="true">·</span>'
+    // I Inställningar behövs ingen länk dit.
+    el.innerHTML = (location.hash === "#/installningar" ? "" : '<a href="#/installningar">Inställningar</a><span class="sep" aria-hidden="true">·</span>')
       + '<span role="status">' + text + "</span>";
   }
 
-  window.Delar = { esc, ochLista, KANSLOR, uppgiftNamn, uppgifter, kansla, sidfot };
+  window.Delar = { esc, ochLista, KANSLOR, uppgiftNamn, uppgifter, kansla, kanslaVald, sidfot };
 })();

@@ -45,7 +45,7 @@
   --radavstand: 1.55;
 
   /* Mått och avstånd */
-  --bredd: 44rem;
+  --bredd: 50rem;
   --kant: 1rem;                  /* sidmarginal (16 px) */
   --steg-1: 0.25rem;
   --steg-2: 0.5rem;
@@ -159,9 +159,6 @@ h2 { font-size: var(--storlek-bas); margin: 0; }
 }
 .huvudnav { display: flex; gap: var(--steg-4); }
 .huvudnav a {
-  font-size: var(--storlek-etikett);
-  letter-spacing: var(--sparrning);
-  text-transform: uppercase;
   color: var(--tyst);
   text-decoration: none;
   padding: var(--steg-2) 0;
@@ -215,7 +212,8 @@ button { font: inherit; color: inherit; }
    Nu (layout.md §5)
    ========================================================================== */
 .metarad { margin: 0 0 var(--steg-2); color: var(--tyst); font-size: var(--storlek-liten); }
-.metarad .inaktiv { color: var(--tertiar); }
+.metarad-rad { display: block; }
+.metarad .inaktiv { color: var(--tertiar); }   /* ingen understrykning: syns som "inte en länk" */
 .nu h1 { margin-bottom: var(--steg-5); }
 .nu section, .nu fieldset { margin: 0 0 var(--steg-5); }
 .nu .etikett { display: block; margin: 0 0 var(--steg-3); }
@@ -235,8 +233,8 @@ button { font: inherit; color: inherit; }
   cursor: pointer;
 }
 .uppgift[aria-pressed="true"] {
-  background: var(--text);
-  border-color: var(--text);
+  background: var(--tyst);
+  border-color: var(--tyst);
   color: var(--bg);
   font-weight: var(--vikt-fet);
 }
@@ -305,7 +303,11 @@ legend { padding: 0; }
 .kanslaruta.k3 { background: var(--kansla-3); }
 .kanslaruta.k4 { background: var(--kansla-4); }
 .kanslaruta.k5 { background: var(--kansla-5); }
-.ta-bort { margin-top: var(--steg-1); }
+/* "Ta bort bedömning": liten och tyst, i höjd med rubriken. */
+.kansla-ram { position: relative; }   /* knappen placeras mot ramen, eftersom legend inte räknas i fieldset */
+.ta-bort { position: absolute; top: calc((var(--storlek-etikett) * var(--radavstand) - var(--klickyta)) / 2); right: 0; font-size: var(--storlek-liten); color: var(--tertiar); }
+.kansla-vald { display: none; margin: var(--steg-2) 0 0; color: var(--tertiar); font-size: var(--storlek-liten); text-align: center; }
+.kansla-vald span { color: var(--text); font-weight: var(--vikt-fet); }
 
 /* Anteckning: växer till en gräns och scrollar sedan. */
 .anteckning textarea {
@@ -343,7 +345,9 @@ legend { padding: 0; }
 
 /* Mobil: känslan blir en kompakt rad 1–5 med nivåns namn under (layout.md §8). */
 @media (max-width: 40rem) {
-  .segment-val { flex-direction: column; justify-content: center; gap: var(--steg-1); padding: var(--steg-2) 2px; text-align: center; font-size: 0.72rem; }
+  .segment-val { justify-content: center; padding: var(--steg-2) 2px; font-size: var(--storlek-mellan); }
+  .segment-namn { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .kansla-vald { display: block; }
   .uppgift { min-width: 3.1rem; min-height: 3.1rem; }
 }
 
@@ -378,7 +382,7 @@ legend { padding: 0; }
 .tl-idag { top: 12px; height: 48px; width: 2px; margin-left: -1px; background: var(--text); box-shadow: 0 0 0 2px var(--bg); }
 
 /* ?-knappen: 44 px klickyta, cirkeln i linje med tidslinjens högerkant. */
-.tl-hjalp-rad { display: flex; justify-content: flex-end; margin: 0 0 var(--steg-3); }
+.tl-hjalp-rad { display: flex; justify-content: flex-end; margin: -10px 0 var(--steg-3); }
 .tl-hjalp {
   display: flex;
   align-items: center;
@@ -449,7 +453,7 @@ legend { padding: 0; }
 /* Kolumner: Kapitel · Ikryssade · Känns · På tentan (utan rubriker: innehållet säger själv vad det är) */
 .kapitelrad {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 8.5rem 9.5rem 6rem;
+  grid-template-columns: minmax(0, 1fr) 6rem 7.75rem 6.25rem;
   gap: var(--steg-3);
   align-items: center;
 }
@@ -475,6 +479,15 @@ summary.modulrubrik { cursor: pointer; list-style: none; border-top: var(--hårs
 summary.modulrubrik::-webkit-details-marker { display: none; }
 summary.modulrubrik:hover .modul-meta { color: var(--text); }
 details:not([open]) .dolj, details[open] .visa { display: none; }
+/* En ruta per kapitel i känslans färg. Bara när modulen är hopfälld: utfälld syns det i raderna. */
+.modul-rutor { flex-basis: 100%; display: flex; flex-wrap: wrap; gap: 3px; padding: var(--steg-1) 0 var(--steg-1); }
+.modul-rutor span { width: 10px; height: 10px; border-radius: 2px; background: var(--svag); }
+.modul-rutor .k1 { background: var(--kansla-1); }
+.modul-rutor .k2 { background: var(--kansla-2); }
+.modul-rutor .k3 { background: var(--kansla-3); }
+.modul-rutor .k4 { background: var(--kansla-4); }
+.modul-rutor .k5 { background: var(--kansla-5); }
+details[open] .modul-rutor { display: none; }
 .tentarad { text-decoration: none; border-top: var(--hårstreck); }
 .tentarad:hover .modul-meta { color: var(--text); text-decoration: underline; }
 
@@ -542,19 +555,20 @@ details:not([open]) .dolj, details[open] .visa { display: none; }
 .inst-fraga:focus, .inst-meddelande:focus { outline: 2px solid var(--fokus); outline-offset: 2px; }
 
 /* Segmenterat val med knappar (tema). */
-.val { display: inline-flex; padding: 3px; gap: 2px; background: var(--kontroll); border-radius: calc(var(--rundning) + 3px); }
+/* Textval som sorteringsflikarna i Läget: valt alternativ i fetstil. */
+.val { display: inline-flex; gap: var(--steg-4); }
 .val button {
   min-height: var(--klickyta);
-  min-width: 4.5rem;
-  padding: 0 var(--steg-3);
-  border: 1px solid transparent;
-  border-radius: var(--rundning);
+  min-width: var(--klickyta);
+  padding: 0;
+  border: 0;
   background: none;
   color: var(--tyst);
   font-size: var(--storlek-liten);
   cursor: pointer;
 }
-.val button[aria-pressed="true"] { background: var(--bg); border-color: var(--svag); color: var(--text); font-weight: var(--vikt-fet); }
+.val button:hover { color: var(--text); }
+.val button[aria-pressed="true"] { color: var(--text); font-weight: var(--vikt-fet); }
 
 /* Bekräftelseknapp för det som inte går att ta tillbaka utan Ångra: röd, bara här (DESIGNLAG §4). */
 .knapp-farlig {

@@ -147,9 +147,9 @@
       + '<span class="kol-kapitel"><span class="kapitelnr">' + esc(c.id) + '</span><span class="kapiteltitel">' + esc(c.titel) + "</span>"
       + (arSenast ? '<span class="senast-etikett">senast öppnad</span>' : "") + "</span>"
       + '<span class="kol-ikryssade" aria-hidden="true">'
-      + (tot
-        ? '<span class="stapel"><span style="width:' + (100 * ikr / tot) + '%"></span></span><span class="siffror">' + ikr + "/" + tot + "</span>"
-        : '<span class="tertiar">–</span>')
+      + (!tot ? '<span class="tertiar">–</span>'
+        : ikr ? '<span class="stapel"><span style="width:' + (100 * ikr / tot) + '%"></span></span><span class="siffror">' + ikr + "/" + tot + "</span>"
+        : '<span class="tertiar">' + tot + " uppgifter</span>") // stapeln visas först när något är ikryssat
       + "</span>"
       + '<span class="kol-kansla" aria-hidden="true">'
       + (u.kansla ? '<span class="kanslaruta k' + u.kansla + '">' + u.kansla + '</span><span class="kansla-namn">' + esc(KANSLOR[u.kansla]) + "</span>" : "")
@@ -172,10 +172,15 @@
       const titel = '<span class="modul-titel">Modul ' + Kurs.modulNr(m.id) + " · " + esc(m.namn)
         + ' <span class="modul-datum">' + datum(Kurs.intervallText(d.forsta, d.sista)) + "</span></span>";
       const lista = '<ul class="kapitellista">' + kap.map((c) => kapitelRad(c, senast)).join("") + "</ul>";
+      // Hopfälld modul: en liten ruta per kapitel i känslans färg (grå om obedömt), så att man ser läget utan att fälla ut.
+      const kanslor = kap.map((c) => Lagring.kapitel(c.id).kansla);
+      const bedomda = Object.entries(KANSLOR).map(([n, namn]) => [kanslor.filter((k) => k === Number(n)).length, namn]).filter(([a]) => a);
+      const rutor = '<span class="modul-rutor" aria-hidden="true">' + kanslor.map((k) => '<span class="' + (k ? "k" + k : "") + '"></span>').join("") + "</span>"
+        + '<span class="dold">, ' + kap.length + " kapitel" + bedomda.map(([a, namn]) => ", " + a + " känns " + namn.toLowerCase()).join("") + "</span>";
       // Alla moduler är hopfällbara, och name gör att bara en kan vara utfälld åt gången.
       h += '<details class="modul" name="moduler" id="modul-' + esc(m.id) + '" data-modul="' + esc(m.id) + '"' + (m.id === utfalld ? " open" : "") + ">"
-        + '<summary class="modulrubrik">' + titel + '<span class="modul-meta">' + kap.length + " kapitel"
-        + ' · <span class="visa">Visa ↓</span><span class="dolj">Dölj ↑</span></span></summary>' + lista + "</details>";
+        + '<summary class="modulrubrik">' + titel + '<span class="modul-meta"><span class="visa">Visa ↓</span><span class="dolj">Dölj ↑</span></span>'
+        + rutor + "</summary>" + lista + "</details>";
     }
     return h;
   }
