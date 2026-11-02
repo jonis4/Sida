@@ -88,22 +88,26 @@
       b.setAttribute("aria-pressed", Lagring.kapitel(c.id).ikryssade.includes(b.dataset.uppgift));
     });
 
-    // Känsla
-    const taBort = vy.querySelector(".ta-bort");
-    vy.querySelector(".kansla").addEventListener("change", (e) => {
+    // Känsla. Klick (eller mellanslag) på den nivå som redan är vald tar bort bedömningen.
+    // Klicket kommer före change, så det sparade värdet är fortfarande det gamla här.
+    const kansla = vy.querySelector(".kansla");
+    const visaVald = (n) => { vy.querySelector(".kansla-vald").innerHTML = Delar.kanslaVald(n); };
+    const taBort = (r) => { r.checked = false; Lagring.sattKansla(c.id, null); visaVald(null); };
+    kansla.addEventListener("click", (e) => {
+      const r = e.target;
+      if (r.name === "kansla" && Number(r.value) === Lagring.kapitel(c.id).kansla) taBort(r);
+    });
+    // Mellanslag på en vald radioknapp ger inget klick i webbläsaren, så det sköts här.
+    kansla.addEventListener("keydown", (e) => {
+      const r = e.target;
+      if (e.key !== " " || r.name !== "kansla" || !r.checked) return;
+      e.preventDefault();
+      taBort(r);
+    });
+    kansla.addEventListener("change", (e) => {
       if (e.target.name !== "kansla") return;
       Lagring.sattKansla(c.id, Number(e.target.value));
-      taBort.hidden = false;
-      vy.querySelector(".kansla-vald").innerHTML = Delar.kanslaVald(Number(e.target.value));
-    });
-    taBort.addEventListener("click", () => {
-      const valt = vy.querySelector('input[name="kansla"]:checked');
-      Lagring.sattKansla(c.id, null);
-      vy.querySelectorAll('input[name="kansla"]').forEach((r) => { r.checked = false; });
-      taBort.hidden = true;
-      vy.querySelector(".kansla-vald").innerHTML = Delar.kanslaVald(null);
-      // Fokus tillbaka till valet, så att man inte tappar bort sig när knappen försvinner.
-      (valt || vy.querySelector('input[name="kansla"]')).focus();
+      visaVald(Number(e.target.value));
     });
 
     // Anteckning

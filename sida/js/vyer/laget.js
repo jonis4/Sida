@@ -5,7 +5,7 @@
   const { esc, KANSLOR } = Delar;
 
   // Synligt namn och fullständigt namn (för skärmläsare) per sortering.
-  const SORTERINGAR = { kurs: ["Kursordning"], kansla: ["Efter känsla"], tentan: ["Tentan", "Viktigast på tentan"] };
+  const SORTERINGAR = { kurs: ["Kursordning"], kansla: ["Efter känsla"], tentan: ["På tentan", "Viktigast på tentan"] };
   // Datum bryts aldrig mitt i ("2–" / "10 nov").
   const datum = (text) => '<span class="hel">' + esc(text) + "</span>";
   let sortering = "kurs";       // minns vald sortering under besöket
@@ -191,8 +191,13 @@
     const delar = [datum(Kurs.datumText(K.kurs.tenta, "kort"))];
     for (const v of Kurs.visasMed(m.id)) delar.push(esc(v.namn.toLowerCase()) + " från " + datum(Kurs.datumText(Kurs.modulDatum(v.id).forsta)));
     if (K.tentor.length) delar.push(datum(K.tentor.length + (K.tentor.length === 1 ? " gammal tenta" : " gamla tentor")));
-    return '<section class="modul" id="modul-' + esc(m.id) + '"><a class="modulrubrik tentarad" href="#/tentan">'
-      + '<span class="modul-titel">' + esc(m.namn) + ' <span class="modul-datum">' + delar.join(" · ") + "</span></span>"
+    const titel = '<span class="modul-titel">' + esc(m.namn) + ' <span class="modul-datum">' + delar.join(" · ") + "</span></span>";
+    // Så länge Tentan-vyn är en platshållare är raden ingen länk (DESIGNLAG L6: inga skenbara funktioner).
+    if (window.Vyer.tentan && window.Vyer.tentan.platshallare) {
+      return '<section class="modul" id="modul-' + esc(m.id) + '"><div class="modulrubrik tentarad">' + titel
+        + '<span class="modul-meta">Kommer</span></div></section>';
+    }
+    return '<section class="modul" id="modul-' + esc(m.id) + '"><a class="modulrubrik tentarad" href="#/tentan">' + titel
       + '<span class="modul-meta">Öppna →</span></a></section>';
   }
 

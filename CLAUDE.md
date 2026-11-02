@@ -405,6 +405,13 @@ Fasen är inte färdigplanerad. Den delas upp så här:
 - Ikryssade uppgifter är mörkgrå (`--tyst`) i stället för svarta.
 - Sidfoten visar inte länken till Inställningar när man redan är där. Temavalet är textval i samma stil som sorteringsflikarna.
 
+**Beslut (granskning mot DESIGNLAG, 2 nov 2026):**
+- **Avsteg från `DESIGNLAG.md` L4 och trackerns prejudikat:** "Ta bort bedömning" är borttagen. Klickar man på den nivå som redan är vald tas bedömningen bort, och mellanslag på vald nivå gör samma sak. Motivering mot grundsatsen: verktyget är personligt, Jonatan vet att funktionen finns, och en knapp som syns jämt för en sällsynt handling är brus. Beslutat av Jonatan. Ersätter tidigare beslut om knappen.
+- Sorteringsfliken heter "På tentan" (L9: "Tentan" är också modulen och vyn). Skärmläsarnamnet är fortfarande "Viktigast på tentan".
+- Tentan-raden i Läget är ingen länk och säger "Kommer" så länge Tentan-vyn är en platshållare (L6). Det styrs av `platshallare: true` i `vyer/tentan.js`, som tas bort i fas 10. Ersätter B7.
+- Tidslinjens mått är i rem (L12), så att den skalar med webbläsarens textstorlek. Bara linjer och rundningar är kvar i px.
+- **Brott mot lagboken som finns kvar, utan beslut än:** huvudnaven utan versaler (§4), bredden 50rem (§4, högst ca 44rem), temavalet som textflikar (§4, ska vara ett segmenterat val), siffror utan namn i känsloraden på mobil (L4) och färgrutor utan siffra i hopfällda moduler (L12).
+
 **Öppna frågor:**
 - Vad betyder ∗ efter vissa uppgiftsnummer i studiehandledningen?
 - Ska påbyggnadsuppgifter räknas i stapeln "Ikryssade"? (Utkastet: nej.)

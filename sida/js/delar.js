@@ -44,11 +44,12 @@
   }
 
   // ---------- Känsla ----------
-  // Riktiga radioknappar i en fieldset, plus en synlig "Ta bort bedömning" (DESIGNLAG L4, L12).
+  // Riktiga radioknappar i en fieldset (DESIGNLAG L12). Klick på vald nivå tar bort bedömningen
+  // (avsteg från L4, beslut 2 nov 2026). Mellanslag på vald nivå gör samma sak.
   // På mobil visar raden bara siffrorna, och namnet på vald nivå står under (layout.md §8).
   function kansla(c) {
     const vald = Lagring.kapitel(c.id).kansla;
-    let h = '<div class="kansla-ram"><fieldset class="kansla"><legend class="etikett">Hur känns kapitlet?</legend>'
+    let h = '<fieldset class="kansla"><legend class="etikett">Hur känns kapitlet?</legend>'
       + '<div class="segment">';
     for (const [n, namn] of Object.entries(KANSLOR)) {
       h += '<label class="segment-val k' + n + '"><input type="radio" name="kansla" value="' + n + '"'
@@ -56,9 +57,7 @@
         + '<span class="segment-siffra" aria-hidden="true">' + n + "</span>"
         + '<span class="segment-namn">' + esc(namn) + "</span></label>";
     }
-    // "Ta bort bedömning" står efter valet i tabbordningen, men visas uppe till höger (CSS).
-    return h + '</div><p class="kansla-vald" aria-hidden="true">' + kanslaVald(vald) + "</p>"
-      + '<button type="button" class="textknapp ta-bort"' + (vald ? "" : " hidden") + ">Ta bort bedömning</button></fieldset></div>";
+    return h + '</div><p class="kansla-vald" aria-hidden="true">' + kanslaVald(vald) + "</p></fieldset>";
   }
   // Raden under siffrorna på mobil: vald nivå, eller skalans ändpunkter om inget är valt.
   function kanslaVald(n) {

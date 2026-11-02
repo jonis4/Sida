@@ -8,5 +8,5 @@
       + '</p><p class="platshallare">Vyn tas fram senare.</p>';
   }
 
-  (window.Vyer = window.Vyer || {}).tentan = { rita };
+  (window.Vyer = window.Vyer || {}).tentan = { rita, platshallare: true } // platshallare: Läget länkar inte hit förrän vyn finns;
 })();
