@@ -390,6 +390,7 @@ Fasen är inte färdigplanerad. Den delas upp så här:
 **Beslut (fas 9, 2 nov 2026):**
 - Bara `sida/` publiceras, via GitHub Actions (`.github/workflows/pages.yml`) vid varje push till main. Repot i sig är lika synligt som förut.
 - Jonatan ställer in Pages-källan till "GitHub Actions" och pushar själv.
+- Besöksräknare med GoatCounter (`jonis4.goatcounter.com`), önskad av Jonatan. Den är osynlig på sidan, och bara Jonatan ser siffrorna. Den sätter inga cookies och räknar inte `file://` eller localhost.
 
 **Öppna frågor:**
 - Vad betyder ∗ efter vissa uppgiftsnummer i studiehandledningen?
