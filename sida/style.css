@@ -6,11 +6,14 @@
   /* Färgroller */
   --bg: #ffffff;
   --text: #1a1a1a;          /* primär: innehåll, rubriker, nyckeltal */
-  --tyst: #5f5f5f;          /* sekundär: etiketter, metadata (6,4:1 mot --bg) */
-  --tertiar: #6c6c6c;       /* tertiär: statusrad, datum, legend (5,3:1 mot --bg, 4,7:1 mot --yta) */
+  --tyst: #6b6b6b;          /* sekundär: metadata (5,3:1 mot --bg, 4,9:1 mot --yta-grupp) */
+  --tertiar: #767676;       /* tertiär: etiketter, datum, legend (4,5:1 mot --bg). På grå ytor används --tyst */
   --svag: #e3e3e3;          /* hårstreck */
   --yta: #f3f3f3;           /* egen yta: bara för status (t.ex. "senast öppnad") */
-  --kontroll: #e8e8e8;      /* huvudhandlingens block, segmentspår */
+  --kontroll: #f1f1f1;      /* segmentspår (tema) */
+  --kant-kontroll: #dcdcdc;           /* kant på uppgifter, kapslar och textfält */
+  --kant-kontroll-streckad: #cfcfcf;  /* streckad kant på påbyggnad */
+  --yta-grupp: #f6f6f6;               /* grupperingsytan i Nu (en grupp per vy) */
   --fel: #b3261e;           /* destruktiv handling och fel som kräver handling */
   --fokus: var(--text);     /* fokusringen använder textfärgen, ingen accent */
   /* Tidslinjen: idag, nästa föreläsning och Tentan är mörkast. Modulen som pågår är ljusare än dem. */
@@ -36,13 +39,15 @@
   --font: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, Roboto, "Helvetica Neue", Arial, sans-serif;
   --vikt: 400;
   --vikt-fet: 600;
-  --storlek-bas: 1.0625rem;      /* 17 px vid standardinställning */
-  --storlek-rubrik: 1.6rem;
-  --storlek-mellan: 1.125rem;
-  --storlek-liten: 0.88rem;
-  --storlek-etikett: 0.78rem;    /* små versaler med spärrning */
-  --sparrning: 0.08em;
-  --radavstand: 1.55;
+  /* Tydliga steg: 13 (liten) · 15 (bas) · 32 (sidrubrik). Modulrubriker skiljs med vikt, inte storlek. */
+  --storlek-bas: 0.9375rem;      /* 15 px vid standardinställning */
+  --storlek-rubrik: 2rem;        /* 32 px */
+  --storlek-mellan: 0.9375rem;   /* modulrubriker: samma som bas, men fetstil */
+  --storlek-liten: 0.8125rem;    /* 13 px: metarader, datum, etiketter, sidfot */
+  --storlek-etikett: 0.8125rem;  /* etiketter: vanliga gemener, tertiär färg */
+  --sparrning-rubrik: -0.025em;
+  --sparrning-modul: -0.01em;
+  --radavstand: 1.45;
 
   /* Mått och avstånd */
   --bredd: 50rem;
@@ -54,6 +59,11 @@
   --steg-5: 2.6rem;
   --klickyta: 2.75rem;           /* 44 px */
   --rundning: 6px;
+  --rundning-kontroll: 10px;     /* uppgifter, textfält */
+  --rundning-grupp: 14px;        /* grupperingsytan */
+  --rundning-kapsel: 999px;      /* kapslar: känsla, Fortsätt */
+  --luft-rubrik: 3rem;           /* från rubrik till första gruppen */
+  --luft-grupp: 4.5rem;          /* mellan grupper */
   --hårstreck: 1px solid var(--svag);
 
   color-scheme: light dark;
@@ -69,6 +79,12 @@
     --svag: #2e2e2e;
     --yta: #222222;
     --kontroll: #2c2c2c;
+  --kant-kontroll: #3a3a3a;
+  --kant-kontroll-streckad: #444444;
+  --yta-grupp: #1e1e1e;
+    --kant-kontroll: #3a3a3a;
+    --kant-kontroll-streckad: #444444;
+    --yta-grupp: #1e1e1e;
     --fel: #ff8a80;
     --band: #262626;
     --band-text: #9a9a9a;
@@ -122,6 +138,7 @@ body {
   font-size: var(--storlek-bas);
   line-height: var(--radavstand);
   font-weight: var(--vikt);
+  -webkit-font-smoothing: antialiased;
 }
 
 a { color: inherit; text-underline-offset: 0.18em; text-decoration-thickness: 1px; }
@@ -129,20 +146,16 @@ a { color: inherit; text-underline-offset: 0.18em; text-decoration-thickness: 1p
 main:focus { outline: none; }
 
 h1, h2, strong, b { font-weight: var(--vikt-fet); }
-h1 { font-size: var(--storlek-rubrik); line-height: 1.25; margin: 0 0 var(--steg-2); }
+h1 { font-size: var(--storlek-rubrik); line-height: 1.1; letter-spacing: var(--sparrning-rubrik); margin: 0 0 var(--steg-2); }
 h2 { font-size: var(--storlek-bas); margin: 0; }
 h1, h2 { text-wrap: balance; }
 
 .dold { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 .tyst { color: var(--tyst); }
 .tertiar { color: var(--tertiar); font-size: var(--storlek-liten); }
-.etikett {
-  font-size: var(--storlek-etikett);
-  letter-spacing: var(--sparrning);
-  text-transform: uppercase;
-  color: var(--tyst);
-  font-weight: var(--vikt-fet);
-}
+.etikett { font-size: var(--storlek-etikett); color: var(--tertiar); font-weight: var(--vikt); }
+/* På grå ytor klarar --tertiar inte 4,5:1, så där används --tyst. */
+.kapitelrad.senast, .inst-fraga, .inst-meddelande, .nu .grupp { --tertiar: var(--tyst); }
 .siffror { font-variant-numeric: tabular-nums; }
 
 /* ==========================================================================
@@ -159,7 +172,8 @@ h1, h2 { text-wrap: balance; }
 }
 .huvudnav { display: flex; gap: var(--steg-4); }
 .huvudnav a {
-  color: var(--tyst);
+  color: var(--tertiar);
+  font-size: var(--storlek-liten);
   text-decoration: none;
   padding: var(--steg-2) 0;
   min-height: var(--klickyta);
@@ -168,7 +182,7 @@ h1, h2 { text-wrap: balance; }
   align-items: center;
 }
 .huvudnav a:hover { color: var(--text); }
-.huvudnav a[aria-current="page"] { color: var(--text); font-weight: var(--vikt-fet); }
+.huvudnav a[aria-current="page"] { color: var(--text); }   /* skillnaden ligger i färgen, inte vikten */
 .idag { color: var(--tertiar); font-size: var(--storlek-liten); }
 
 main {
@@ -211,74 +225,72 @@ button { font: inherit; color: inherit; }
 /* ==========================================================================
    Nu (layout.md §5)
    ========================================================================== */
-.metarad { margin: 0 0 var(--steg-2); color: var(--tyst); font-size: var(--storlek-liten); }
-.metarad-rad { display: block; }
-.metarad .inaktiv { color: var(--tertiar); }   /* ingen understrykning: syns som "inte en länk" */
+.metarad { margin: 0 0 var(--steg-2); color: var(--tyst); font-size: 0.875rem; }
 /* Textspalten är högst 44rem (DESIGNLAG §4). Läget, som är en tabell, får sidans fulla bredd. */
 .nu, .installningar { max-width: 44rem; }
-.nu h1 { margin-bottom: var(--steg-5); }
-.nu section, .nu fieldset { margin: 0 0 var(--steg-5); }
-.nu .etikett { display: block; margin: 0 0 var(--steg-3); }
-.anmarkning { margin: calc(-1 * var(--steg-2)) 0 var(--steg-3); color: var(--tyst); font-size: var(--storlek-liten); }
+/* Fyra grupper: tätt inom en grupp, mycket luft mellan dem. Kapitlet · Räkna · Efteråt (på en yta) · Vidare. */
+.nu .metarad { margin: 0 0 var(--steg-1); }
+.nu h1 { margin: 0 0 var(--luft-rubrik); }
+.nu .etikett { display: block; margin: 0 0 var(--steg-2); }
+.nu .uppgifter { margin: 0 0 var(--luft-grupp); }
+.nu .uppgiftsrad.pabyggnad { margin-top: var(--steg-3); }
+.nu .grupp {
+  margin: 0 0 var(--luft-grupp);
+  padding: 1.25rem;
+  border-radius: var(--rundning-grupp);
+  background: var(--yta-grupp);
+}
+.nu .grupp fieldset.kansla { margin: 0 0 var(--steg-4); }
+.nu .grupp .anteckning { margin: 0; }
+.nu .grupp legend { float: left; width: 100%; }   /* annars hamnar etiketten utanför ytan */
+.anmarkning { margin: 0 0 var(--steg-2); color: var(--tyst); font-size: var(--storlek-liten); }
 
 /* Uppgifter: stora knappar som går att klicka i och ur. Ikryssad = fylld (form, inte bara färg). */
 .uppgiftsrad { display: flex; flex-wrap: wrap; align-items: center; gap: var(--steg-2); }
 .uppgift {
-  min-width: 3.5rem;
-  min-height: 3.5rem;
+  min-width: var(--klickyta);      /* 44 px, också på mobil */
+  min-height: var(--klickyta);
   padding: 0 var(--steg-3);
-  border: 1px solid var(--tertiar);
-  border-radius: var(--rundning);
+  border: 1px solid var(--kant-kontroll);
+  border-radius: var(--rundning-kontroll);
   background: var(--bg);
-  font-size: var(--storlek-mellan);
+  font-size: var(--storlek-bas);
+  font-weight: var(--vikt);
   font-variant-numeric: tabular-nums;
   cursor: pointer;
 }
-.uppgift[aria-pressed="true"] {
-  background: var(--tyst);
-  border-color: var(--tyst);
-  color: var(--bg);
-  font-weight: var(--vikt-fet);
-}
-.uppgiftsrad.pabyggnad { margin-top: var(--steg-3); }
+.uppgift[aria-pressed="true"] { background: var(--text); border-color: var(--text); color: var(--bg); }
 .pabyggnad .uppgift {
-  min-width: var(--klickyta);
-  min-height: var(--klickyta);
-  font-size: var(--storlek-bas);
+  font-size: 0.875rem;
   border-style: dashed;
+  border-color: var(--kant-kontroll-streckad);
 }
 .pabyggnad .uppgift[aria-pressed="true"] { border-style: solid; }
 .rad-etikett { color: var(--tyst); font-size: var(--storlek-liten); margin-right: var(--steg-2); }
 
-/* Känsla: segmenterat val (grått spår, valt alternativ som upphöjd platta). */
+/* Känsla: separata kapslar. Vald nivå fylls med sin färg. */
 fieldset { border: 0; padding: 0; min-width: 0; }
 legend { padding: 0; }
-.segment {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 2px;
-  padding: 3px;
-  background: var(--kontroll);
-  border-radius: calc(var(--rundning) + 3px);
-}
+.segment { display: flex; flex-wrap: wrap; gap: 6px; padding: 0; background: transparent; clear: both; }
 .segment-val {
   position: relative;
   display: flex;
   align-items: center;
   gap: var(--steg-2);
-  min-height: var(--klickyta);
-  padding: var(--steg-2);
-  border-radius: var(--rundning);
-  border: 1px solid transparent;
+  min-height: 2.5rem;
+  padding: 0 0.9rem;
+  border: 1px solid var(--kant-kontroll);
+  border-radius: var(--rundning-kapsel);
+  background: var(--bg);
   color: var(--tyst);
   font-size: var(--storlek-liten);
   line-height: 1.25;
   cursor: pointer;
 }
 .segment-val input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
-.segment-siffra { font-weight: var(--vikt-fet); font-variant-numeric: tabular-nums; color: var(--text); }
+.segment-siffra { font-variant-numeric: tabular-nums; color: var(--tertiar); }
 /* Vald nivå: fylld med sin färg (status), siffra och namn i vitt. */
-.segment-val:has(input:checked) { color: var(--kansla-text); font-weight: var(--vikt-fet); }
+.segment-val:has(input:checked) { color: var(--kansla-text); border-color: transparent; }
 .segment-val:has(input:checked) .segment-siffra { color: inherit; }
 .segment-val.k1:has(input:checked) { background: var(--kansla-1); }
 .segment-val.k2:has(input:checked) { background: var(--kansla-2); }
@@ -292,12 +304,12 @@ legend { padding: 0; }
   flex: none;
   display: inline-grid;
   place-items: center;
-  width: 1.6rem;
-  height: 1.6rem;
+  width: 1.25rem;
+  height: 1.25rem;
   border-radius: 4px;
   color: var(--kansla-text);
-  font-size: var(--storlek-liten);
-  font-weight: var(--vikt-fet);
+  font-size: 0.6875rem;
+  font-weight: var(--vikt);
   font-variant-numeric: tabular-nums;
 }
 .kanslaruta.k1 { background: var(--kansla-1); }
@@ -306,7 +318,7 @@ legend { padding: 0; }
 .kanslaruta.k4 { background: var(--kansla-4); }
 .kanslaruta.k5 { background: var(--kansla-5); }
 .kansla-vald { display: none; margin: var(--steg-2) 0 0; color: var(--tertiar); font-size: var(--storlek-liten); text-align: center; }
-.kansla-vald span { color: var(--text); font-weight: var(--vikt-fet); }
+.kansla-vald span { color: var(--text); }
 
 /* Anteckning: växer till en gräns och scrollar sedan. */
 .anteckning textarea {
@@ -315,11 +327,12 @@ legend { padding: 0; }
   min-height: 5.5rem;
   max-height: 22rem;
   padding: var(--steg-2) 0.75rem;
-  border: 1px solid var(--tertiar);
-  border-radius: var(--rundning);
+  border: 1px solid var(--kant-kontroll);
+  border-radius: var(--rundning-kontroll);
   background: var(--bg);
   color: var(--text);
   font: inherit;
+  font-size: var(--storlek-bas);
   line-height: var(--radavstand);
   resize: none;
   overflow-y: auto;
@@ -330,31 +343,31 @@ legend { padding: 0; }
   display: flex;
   justify-content: space-between;
   gap: var(--steg-3);
-  margin-top: var(--steg-5);
-  padding-top: var(--steg-3);
+  margin-top: 0;
+  padding-top: 1.5rem;
   border-top: var(--hårstreck);
 }
-.granne { display: block; min-height: var(--klickyta); padding: var(--steg-2) 0; max-width: 48%; color: var(--tyst); text-decoration: none; }
+.granne { display: block; min-height: var(--klickyta); padding: var(--steg-2) 0; max-width: 48%; color: var(--tyst); font-size: var(--storlek-liten); text-decoration: none; }
 .granne:hover .granne-kapitel { text-decoration: underline; }
 .granne.nasta { text-align: right; margin-left: auto; color: var(--text); }   /* Nästa är något tydligare */
 
 /* Mobil: känslan blir en kompakt rad 1–5 med nivåns namn under (layout.md §8). */
 @media (max-width: 40rem) {
-  .segment-val { justify-content: center; padding: var(--steg-2) 2px; font-size: var(--storlek-mellan); }
+  .segment { display: grid; grid-template-columns: repeat(5, 1fr); }
+  .segment-val { justify-content: center; min-height: var(--klickyta); padding: 0; font-size: var(--storlek-bas); }
   .segment-namn { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
   .kansla-vald { display: block; }
-  .uppgift { min-width: 3.1rem; min-height: 3.1rem; }
 }
 
 /* ==========================================================================
    Läget (layout.md §4)
    ========================================================================== */
-.laget-pagar { margin: 0 0 var(--steg-5); color: var(--tyst); }
+.laget-pagar { margin: 0 0 var(--steg-5); color: var(--tyst); font-size: 0.875rem; }
 
 /* Tidslinjen (layout.md §4.2): rent visuell, allt placeras i procent av tiden. */
 .tidslinje { position: relative; height: 3.875rem; }
 .tidslinje > * { position: absolute; }
-.tl-text { top: 0; font-size: 0.75rem; line-height: 0.75rem; font-weight: var(--vikt-fet); white-space: nowrap; }
+.tl-text { top: 0; font-size: 0.75rem; line-height: 0.75rem; font-weight: 500; white-space: nowrap; }
 .tl-idag-text { transform: translateX(-40%); }
 .tl-tenta-text { right: 0; }
 .tl-band, .tl-uppehall, .tl-tenta { top: 1rem; height: 1.5rem; }
@@ -428,7 +441,23 @@ legend { padding: 0; }
 
 .kapitlen-topp { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: flex-start; gap: var(--steg-2) var(--steg-4); margin-bottom: var(--steg-3); }
 .kapitlen-topp .etikett { margin: 0; }
-.komigang { margin: 0 0 var(--steg-3); }
+/* Huvudhandlingen i Läget: en mörk kapsel, sidans enda (DESIGNLAG L2). I mörkt läge blir den ljus. */
+.fortsatt {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--steg-3);
+  max-width: 100%;
+  min-height: var(--klickyta);
+  margin: 0 0 var(--steg-5);
+  padding: 0.7rem 1.2rem;
+  border-radius: var(--rundning-kapsel);
+  background: var(--text);
+  color: var(--bg);
+  font-size: 0.875rem;
+  font-weight: 500;              /* 500 om typsnittet har det, annars 400 */
+  text-decoration: none;
+}
+.fortsatt:hover { opacity: 0.85; }
 
 /* Sortering: textflikar, inga rullgardiner (DESIGNLAG §4). */
 .flikar { display: flex; flex-wrap: wrap; gap: 0 var(--steg-4); }
@@ -448,7 +477,7 @@ legend { padding: 0; }
 /* Kolumner: Kapitel · Ikryssade · Känns · På tentan (utan rubriker: innehållet säger själv vad det är) */
 .kapitelrad {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 6rem 7.75rem 6.25rem;
+  grid-template-columns: minmax(0, 1fr) 6rem 7.75rem 6.25rem 1rem;
   gap: var(--steg-3);
   align-items: center;
 }
@@ -467,6 +496,7 @@ legend { padding: 0; }
   min-height: var(--klickyta);
   font-size: var(--storlek-mellan);
   font-weight: var(--vikt-fet);
+  letter-spacing: var(--sparrning-modul);
 }
 .modul-titel { flex: 0 1 auto; }
 .modul-datum { flex: 1 1 auto; }
@@ -474,8 +504,12 @@ legend { padding: 0; }
 .modul-meta { white-space: nowrap; }
 summary.modulrubrik { cursor: pointer; list-style: none; border-top: var(--hårstreck); }
 summary.modulrubrik::-webkit-details-marker { display: none; }
-summary.modulrubrik:hover .modul-meta { color: var(--text); }
-details:not([open]) .dolj, details[open] .visa { display: none; }
+/* Triangeln visar att rubriken fäller ut: ▸ hopfälld, ▾ utfälld (en självklar ikon, DESIGNLAG §4). */
+.modul-titel::before { display: inline-block; width: 1.1em; color: var(--tyst); font-weight: var(--vikt); }
+summary .modul-titel::before { content: "▸"; }
+details[open] > summary .modul-titel::before { content: "▾"; }
+.tentarad .modul-titel::before { content: ""; }   /* ingen triangel, men samma indrag som modulerna */
+.modul-rutor { padding-left: 1.1em; }   /* i linje med titeln efter triangeln */
 /* En ruta per kapitel i känslans färg. Bara när modulen är hopfälld: utfälld syns det i raderna. */
 /* Siffran står i rutan (L12), så färgen bär aldrig informationen ensam. Obedömt = tom grå ruta utan siffra. */
 .modul-rutor { flex-basis: 100%; display: flex; flex-wrap: wrap; gap: 0.25rem; padding-top: var(--steg-2); }
@@ -503,16 +537,18 @@ a.tentarad:hover .modul-meta { color: var(--text); text-decoration: underline; }
 
 .kapitellista { list-style: none; margin: 0 calc(-1 * var(--steg-2)); padding: 0; }   /* raden har steg-2 inåt: texten hamnar i linje med rubrikerna */
 .kapitelrad {
-  min-height: var(--klickyta);
-  padding: var(--steg-2);
+  min-height: 2.5rem;
+  padding: 0.35rem var(--steg-2);
   border-radius: var(--rundning);
   text-decoration: none;
 }
-.kapitelrad:hover .kapiteltitel { text-decoration: underline; }
+@media (pointer: coarse), (max-width: 40rem) { .kapitelrad { min-height: var(--klickyta); } }   /* 44 px på pekskärm */
+.kol-pil { color: var(--tertiar); text-align: right; }
+.kapitelrad:hover .kol-pil, .kapitelrad:hover .kapiteltitel { color: var(--text); }   /* pilen bär signalen, ingen understrykning */
 .kapitelrad.senast { background: var(--yta); }   /* status, inte dekoration */
 /* Numret i fast bredd, titeln bryts i sin egen spalt. */
 .kol-kapitel { display: grid; grid-template-columns: 2.6rem minmax(0, 1fr); column-gap: var(--steg-2); align-items: baseline; min-width: 0; }
-.kapitelnr { font-variant-numeric: tabular-nums; color: var(--tyst); }
+.kapitelnr { font-variant-numeric: tabular-nums; color: var(--tertiar); }
 .kapiteltitel { min-width: 0; }
 .senast-etikett { grid-column: 2; color: var(--tyst); font-size: var(--storlek-liten); }
 .kol-ikryssade { display: flex; align-items: center; gap: var(--steg-2); color: var(--tyst); font-size: var(--storlek-liten); }
@@ -524,18 +560,20 @@ a.tentarad:hover .modul-meta { color: var(--text); text-decoration: underline; }
 /* Mobil: varje rad blir två rader, kapitlet överst (layout.md §8). */
 @media (max-width: 40rem) {
   .kapitelrad {
-    grid-template-columns: minmax(0, 1fr) 7.25rem 5.25rem;   /* fasta: spalterna linjerar mellan raderna */
-    grid-template-areas: "kap kap kap" "ikr kansla tentan";
+    grid-template-columns: minmax(0, 1fr) 7.25rem 5.25rem 1rem;   /* fasta: spalterna linjerar mellan raderna */
+    grid-template-areas: "kap kap kap pil" "ikr kansla tentan pil";
     gap: var(--steg-1) var(--steg-2);
   }
   .kol-kapitel { grid-area: kap; }
   .kol-ikryssade { grid-area: ikr; }
   .kol-kansla { grid-area: kansla; }
   .kol-tentan { grid-area: tentan; text-align: right; }
+  .kol-pil { grid-area: pil; align-self: center; }
   .kol-ikryssade .stapel { max-width: 6rem; }
   .kol-ikryssade .tertiar { white-space: nowrap; }
   /* Modulrubriken: titeln på egen rad, datum och Visa ↓ under (inget "Modul 2 ·" ensamt). */
   .modul-titel { flex-basis: 100%; }
+  .modul-datum { padding-left: calc(1.1 * var(--storlek-mellan)); }   /* i linje med titeln efter triangeln */
 }
 
 .platshallare { color: var(--tyst); }

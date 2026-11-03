@@ -20,28 +20,25 @@
   window.addEventListener("pagehide", sparaAnteckningNu);
   window.addEventListener("hashchange", sparaAnteckningNu, true);
 
-  // Två rader: "Modul 1 · s. 708 · Facit" och "Föreläsning 4 · tors 5 nov 14:45 · E231".
+  // En rad: "Modul 1 · Föreläsning 4, tors 5 nov 14:45, E231 · s. 708 · Facit".
+  // Raden bryts bara mellan delar (varje del, och varje föreläsning, hålls ihop).
+  // Facit syns bara när det finns ett facit att länka till.
   function metarad(c) {
-    const sep = '<span class="sep" aria-hidden="true"> · </span>';
-    const forsta = []; // färdig HTML
+    const hel = (t) => '<span class="hel">' + t + "</span>";
+    const delar = []; // färdig HTML
     const nr = Kurs.modulNr(c.modul);
-    if (nr) forsta.push(esc("Modul " + nr));
-    forsta.push(esc("s. " + c.sida));
-    // Facit är en understruken länk när det finns, annars tyst text utan länk (beslut fas 0).
-    forsta.push(c.facit
-      ? '<a href="' + esc(c.facit) + '" target="_blank" rel="noopener">Facit</a>'
-      : '<span class="inaktiv">Facit<span class="dold"> (finns inte än)</span></span>');
-    let h = '<span class="metarad-rad">' + forsta.join(sep) + "</span>";
+    if (nr) delar.push(hel(esc("Modul " + nr)));
     const fs = Kurs.forelasningarFor(c.id);
     if (fs.length) {
       const salar = [...new Set(fs.map((f) => f.sal))];
-      h += '<span class="metarad-rad">' + [
-        "Föreläsning " + ochLista(fs.map((f) => f.nr)),
-        ochLista(fs.map((f) => Kurs.datumText(f.datum, "kort") + " " + f.start)),
-        salar.join(" och "),
-      ].map(esc).join(sep) + "</span>";
+      const tider = fs.map((f, i) => (i ? (i === fs.length - 1 ? "och " : "") : "") + Kurs.datumText(f.datum, "kort") + " " + f.start);
+      delar.push([hel(esc("Föreläsning " + ochLista(fs.map((f) => f.nr)) + ","))]
+        .concat(tider.map((t, i) => hel(esc(t + (i === tider.length - 1 || i < tider.length - 2 ? "," : ""))))) // "a, b och c,"
+        .concat(hel(esc(salar.join(" och ")))).join(" "));
     }
-    return h;
+    delar.push(hel(esc("s. " + c.sida)));
+    if (c.facit) delar.push(hel('<a href="' + esc(c.facit) + '" target="_blank" rel="noopener">Facit</a>'));
+    return delar.join('<span class="sep" aria-hidden="true"> · </span>');
   }
 
   function granne(c, riktning) {
@@ -75,9 +72,10 @@
       + '<p class="metarad">' + metarad(c) + "</p>"
       + '<h1><span class="siffror">' + esc(c.id) + "</span> " + esc(c.titel) + "</h1>"
       + Delar.uppgifter(c)
-      + Delar.kansla(c)
+      // Känslan och anteckningen hör ihop (det man gör efteråt) och står på en gemensam yta.
+      + '<div class="grupp">' + Delar.kansla(c)
       + '<section class="anteckning"><label class="etikett" for="anteckning">Anteckning</label>'
-      + '<textarea id="anteckning" rows="3" spellcheck="true">' + esc(anteckning) + "</textarea></section>"
+      + '<textarea id="anteckning" rows="3" spellcheck="true">' + esc(anteckning) + "</textarea></section></div>"
       + '<nav class="grannar" aria-label="Kapitel">' + granne(Kurs.foregaende(c.id), "foregaende") + granne(Kurs.nasta(c.id), "nasta") + "</nav>"
       + "</article>";
 

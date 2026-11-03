@@ -97,16 +97,20 @@ Plus en sak sidan själv håller koll på: **senast öppnade kapitel**.
 │  ||||| ||| |  || ||  | |||  ||| |||  |          |        │  ← föreläsningar, omärkta streck
 │     ↑idag                                                │
 │                                                          │
-│  KAPITLEN          Kursordning · Efter känsla · Tentan   │
+│  ┌──────────────────────────────────────┐                │
+│  │ Fortsätt med 13.3 Partial Derivatives →│              │  ← huvudhandlingen
+│  └──────────────────────────────────────┘                │
 │                                                          │
-│  Modul 1 · Partiella derivator · 2–10 nov                │
-│  13.1 Funktioner av flera var.  ██████░ 6/7  [4] Kan räkna│
-│  8.2  Parametriserade kurvor    ███████ 5/5  [3] Hänger med│
+│  (från modul 6: Kursordning · Efter känsla · På tentan)  │
+│                                                          │
+│  ▾ Modul 1 · Partiella derivator · 2–10 nov              │
+│  13.1 Funktioner av flera var.  ██████░ 6/7  [4] Kan räkna →│
+│  8.2  Parametriserade kurvor    ███████ 5/5  [3] Hänger med →│
 │  13.3 Partiella derivator  senast öppnad  ...            │
 │  ...                                                     │
 │  Modul 2 · Extremvärdesproblem · 11–18 nov               │
 │  ...                                                     │
-│  Modul 3 · Multipelintegraler · 6 kapitel        Visa ↓  │
+│  ▸ Modul 3 · Multipelintegraler · 19–27 nov              │
 │  ...                                                     │
 │  Tentan · ons 13 jan · 3 gamla tentor            Öppna → │
 │                                                          │
@@ -131,9 +135,13 @@ Plus en sak sidan själv håller koll på: **senast öppnade kapitel**.
 - För skärmläsare är tidslinjen en bild med en beskrivning i klartext (idag, modulen som pågår, nästa föreläsning, tentan).
 - Tidslinjen är en karta, inte en värdering. Den visar aldrig hur mycket du har gjort.
 
+### 4.2b Fortsätt
+- **Läget har en huvudhandling** direkt under tidslinjen: ett stort grått block, "Fortsätt med 13.3 Partial Derivatives →", som går till det senast öppnade kapitlet. Innan något kapitel öppnats står det "Börja med 13.1 … →".
+
 ### 4.3 Kapitellistan
 - **Grupperad per modul** i kursordning. Modulrubriken visar nummer, namn och datum.
-- **Moduler som inte har börjat** är hopfällda till en rad: "Modul 3 · Multipelintegraler · 6 kapitel · Visa ↓".
+- **Moduler är hopfällbara**, och bara en är utfälld åt gången. En triangel före namnet visar läget: ▸ hopfälld, ▾ utfälld. Under en hopfälld modul står en ruta per kapitel i känslans färg, men bara om minst ett kapitel i modulen är bedömt.
+- **Kapitelraderna** har en pil → längst till höger, så att de syns som vägar in.
 - **Tentan** står sist som en egen modulrad: "Tentan · ons 13 jan · 3 gamla tentor · Öppna →".
 - **En rad per kapitel**, med kolumnerna:
 
@@ -145,7 +153,7 @@ Plus en sak sidan själv håller koll på: **senast öppnade kapitel**.
 | På tentan | "3 av 3" om kapitlet förekommit på gamla tentor, annars tomt |
 
 - **Klick på en rad** öppnar kapitlet i Nu.
-- **Sortering** som textflikar ovanför listan:
+- **Sortering** som textflikar ovanför listan, men **först när modul 6 (repetitionen) har börjat**. Innan dess är listan alltid i kursordning:
   - *Kursordning* (standard, med modulgrupper)
   - *Efter känsla* (lägst först, obedömda sist, utan grupper)
   - *Viktigast på tentan* (flest förekomster först, utan grupper)
@@ -164,7 +172,7 @@ Det kapitel du senast öppnade. Samma vy oavsett om du kommer från Läget, frå
 │  Läget   NU                              Torsdag 5 nov    │
 ├──────────────────────────────────────────────────────────┤
 │                                                          │
-│  Modul 1 · föreläsning 4, tors 5 nov · s. 714 · Facit    │
+│  Modul 1 · Föreläsning 4, tors 5 nov 14:45, E231 · s. 714│
 │  13.3 Partiella derivator                                │
 │                                                          │
 │  UPPGIFTER                                               │
@@ -188,7 +196,7 @@ Det kapitel du senast öppnade. Samma vy oavsett om du kommer från Läget, frå
 ```
 
 ### 5.1 Innehåll uppifrån
-1. **Metarad** (tyst): modul · föreläsning med datum · sidan i boken · *Facit*.
+1. **Metarad** (tyst), en rad: modul · föreläsning med datum, tid och sal · sidan i boken · *Facit*. Facit syns bara när det finns ett facit att länka till. Raden bryts bara mellan delar.
 2. **Kapitlet** som sidans rubrik: nummer och titel.
 3. **Uppgifter:** standarduppgifterna som stora knappar som går att klicka i och ur. Påbyggnad på en egen rad, med streckad kant och mindre storlek.
 4. **Hur känns kapitlet?** De fem nivåerna med namn. Alltid synliga. *Ta bort bedömning* syns när en nivå är vald.
