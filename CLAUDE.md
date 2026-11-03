@@ -410,7 +410,24 @@ Fasen är inte färdigplanerad. Den delas upp så här:
 - Sorteringsfliken heter "På tentan" (L9: "Tentan" är också modulen och vyn). Skärmläsarnamnet är fortfarande "Viktigast på tentan".
 - Tentan-raden i Läget är ingen länk och säger "Kommer" så länge Tentan-vyn är en platshållare (L6). Det styrs av `platshallare: true` i `vyer/tentan.js`, som tas bort i fas 10. Ersätter B7.
 - Tidslinjens mått är i rem (L12), så att den skalar med webbläsarens textstorlek. Bara linjer och rundningar är kvar i px.
-- **Brott mot lagboken som finns kvar, utan beslut än:** huvudnaven utan versaler (§4), bredden 50rem (§4, högst ca 44rem), temavalet som textflikar (§4, ska vara ett segmenterat val), siffror utan namn i känsloraden på mobil (L4) och färgrutor utan siffra i hopfällda moduler (L12).
+- **Brott mot lagboken som finns kvar, utan beslut än:** huvudnaven utan versaler (§4) och siffror utan namn i känsloraden på mobil (L4). Bredden, temavalet och färgrutorna är lösta, se nästa block.
+
+**Beslut (UI-putsning, grenen `ui-putsning`, 3 nov 2026):**
+- UI-putsaren (`AI/ui-putsare.md`) har putsat CSS:en: avstånd i Läget och Inställningar, vänsterkant och mobilspalter i kapitellistan, `text-wrap: balance` på rubriker och `--tertiar` `#6c6c6c` (4,73:1 mot `--yta`). Rapporten ligger i `rapporter/ui-genomgang-2026-11-02.md`.
+- Sidan (nav, Läget, sidfot) är 50rem bred, men Nu och Inställningar är högst 44rem (DESIGNLAG §4, textspalt). Läget är en tabell och får full bredd, vilket är ett loggat avsteg från §4.
+- Färgrutorna i hopfällda moduler har siffran i rutan (L12). Obedömda kapitel är tomma grå rutor.
+- Temavalet är ett segmenterat val igen (DESIGNLAG §4).
+- Tidslinjens text ("idag", "Tenta") är 0.75rem, alltså 12 px, i stället för 11 px.
+- Modulrubrikerna har datumet som eget element. På mobil står titeln på egen rad, och datum och Visa ↓ står under. "·" i Tentan-raden hänger ihop med texten före och hamnar aldrig först på en rad.
+- Den oanvända variabeln `--utfallning` är borttagen.
+
+**Beslut (mindre text, tydligare hierarki, 3 nov 2026):**
+- Läget: rader utan ikryssat visar ingenting i Ikryssade-kolumnen. Antalet uppgifter står i skärmläsarnamnet. Ersätter "4 uppgifter".
+- Etiketten "Kapitlen" finns bara för skärmläsare, och sorteringsflikarna står till vänster.
+- Tentan-raden visar bara datumet och "Kommer". Repetitionen syns i tidslinjen.
+- Kapitelnumren är tysta (`--tyst`), så att titeln är det man läser först. Mer luft under rubriken och tidslinjen.
+- Nu: grannarna är bara pil och kapitel ("← 12.3 Curves …", "13.3 Partial Derivatives →"), utan "Föregående" och "Nästa kapitel". Skärmläsare får orden. Nästa står i `--text`, föregående i `--tyst`.
+- Inställningar: kortare förklaringar ("En fil som uppdateras vid varje ändring.", "Flytta din data till en annan dator eller webbläsare.", "Går att ångra i 15 sekunder."), och sammanfattningen är bara "5 av 31 kapitel har något ifyllt.".
 
 **Öppna frågor:**
 - Vad betyder ∗ efter vissa uppgiftsnummer i studiehandledningen?

@@ -46,10 +46,13 @@
 
   function granne(c, riktning) {
     if (!c) return "<span></span>";
-    const etikett = riktning === "nasta" ? "Nästa kapitel →" : "← Föregående";
-    return '<a class="granne ' + riktning + '" href="#/kapitel/' + esc(c.id) + '" rel="' + (riktning === "nasta" ? "next" : "prev") + '">'
-      + '<span class="granne-riktning">' + etikett + "</span>"
-      + '<span class="granne-kapitel"><span class="siffror">' + esc(c.id) + "</span> " + esc(c.titel) + "</span></a>";
+    // Bara pil och kapitel: pilen säger riktningen. Skärmläsare får orden.
+    const nasta = riktning === "nasta";
+    return '<a class="granne ' + riktning + '" href="#/kapitel/' + esc(c.id) + '" rel="' + (nasta ? "next" : "prev") + '">'
+      + '<span class="dold">' + (nasta ? "Nästa kapitel: " : "Föregående kapitel: ") + "</span>"
+      + (nasta ? "" : '<span aria-hidden="true">←&nbsp;</span>')
+      + '<span class="granne-kapitel"><span class="siffror">' + esc(c.id) + "</span> " + esc(c.titel) + "</span>"
+      + (nasta ? '<span aria-hidden="true">&nbsp;→</span>' : "") + "</a>"; // pilen bryts aldrig ensam
   }
 
   // Textfältet växer med texten till en gräns och scrollar sedan (CSS max-height).

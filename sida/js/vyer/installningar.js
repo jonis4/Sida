@@ -45,7 +45,7 @@
         return rad("Kopia på disken", '<span class="varning">' + esc(Sparfil.fel || "Kunde inte skriva till filen.") + "</span>",
           knapp("sparfil-valj", "Välj fil igen…") + knapp("sparfil-sluta", "Stäng av"));
       default:
-        return rad("Kopia på disken", "En fil i en mapp du väljer, som uppdateras automatiskt. Skyddar om webbläsardatan rensas.",
+        return rad("Kopia på disken", "En fil som uppdateras vid varje ändring.",
           knapp("sparfil-valj", "Välj fil…"));
     }
   }
@@ -86,13 +86,12 @@
       + rad("Tema", "", val("Tema", [["tema:auto", "Auto", t === "auto"], ["tema:light", "Ljust", t === "light"], ["tema:dark", "Mörkt", t === "dark"]]))
       + "</section>"
       + '<section class="inst-grupp" aria-labelledby="rubrik-data"><h2 id="rubrik-data" class="etikett">Din data</h2>'
-      + '<p class="inst-sammanfattning">Allt du fyller i sparas automatiskt i webbläsaren. '
-      + '<span class="tyst">' + ifyllda + " av " + Kurs.data.kapitel.length + " kapitel har något ifyllt.</span></p>"
+      + '<p class="inst-sammanfattning tyst">' + ifyllda + " av " + Kurs.data.kapitel.length + " kapitel har något ifyllt.</p>"
       + kopiaRad()
-      + rad("Säkerhetskopia", "Ladda ner ger filen " + esc(KOD.toLowerCase()) + "-data-&lt;datum&gt;.json. Läs in den på en annan dator eller i en annan webbläsare.",
+      + rad("Säkerhetskopia", "Flytta din data till en annan dator eller webbläsare.",
         knapp("ladda-ner", "Ladda ner") + knapp("las-in", "Läs in…"))
       + (lage && !underRensa ? fraga() : "")
-      + rad("Rensa all data", "Tar bort allt du fyllt i. Kursen och temat påverkas inte.", knapp("rensa", "Rensa…"))
+      + rad("Rensa all data", "Går att ångra i 15 sekunder.", knapp("rensa", "Rensa…"))
       + (underRensa ? fraga() : "")
       + "</section>";
   }

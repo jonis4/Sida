@@ -149,7 +149,7 @@
       + '<span class="kol-ikryssade" aria-hidden="true">'
       + (!tot ? '<span class="tertiar">–</span>'
         : ikr ? '<span class="stapel"><span style="width:' + (100 * ikr / tot) + '%"></span></span><span class="siffror">' + ikr + "/" + tot + "</span>"
-        : '<span class="tertiar">' + tot + " uppgifter</span>") // stapeln visas först när något är ikryssat
+        : "") // stapeln visas först när något är ikryssat; antalet står i skärmläsarnamnet
       + "</span>"
       + '<span class="kol-kansla" aria-hidden="true">'
       + (u.kansla ? '<span class="kanslaruta k' + u.kansla + '">' + u.kansla + '</span><span class="kansla-namn">' + esc(KANSLOR[u.kansla]) + "</span>" : "")
@@ -169,13 +169,14 @@
       const d = Kurs.modulDatum(m.id);
       const kap = Kurs.kapitelIModul(m.id);
       // "Modul 1 · Partiella derivator" i fetstil, datumet tyst bredvid.
-      const titel = '<span class="modul-titel">Modul ' + Kurs.modulNr(m.id) + " · " + esc(m.namn)
-        + ' <span class="modul-datum">' + datum(Kurs.intervallText(d.forsta, d.sista)) + "</span></span>";
+      // Datumet står bredvid titeln, och på mobil på egen rad med Visa ↓ till höger.
+      const titel = '<span class="modul-titel">Modul ' + Kurs.modulNr(m.id) + " · " + esc(m.namn) + "</span>"
+        + ' <span class="modul-datum">' + datum(Kurs.intervallText(d.forsta, d.sista)) + "</span>";
       const lista = '<ul class="kapitellista">' + kap.map((c) => kapitelRad(c, senast)).join("") + "</ul>";
       // Hopfälld modul: en liten ruta per kapitel i känslans färg (grå om obedömt), så att man ser läget utan att fälla ut.
       const kanslor = kap.map((c) => Lagring.kapitel(c.id).kansla);
       const bedomda = Object.entries(KANSLOR).map(([n, namn]) => [kanslor.filter((k) => k === Number(n)).length, namn]).filter(([a]) => a);
-      const rutor = '<span class="modul-rutor" aria-hidden="true">' + kanslor.map((k) => '<span class="' + (k ? "k" + k : "") + '"></span>').join("") + "</span>"
+      const rutor = '<span class="modul-rutor" aria-hidden="true">' + kanslor.map((k) => k ? '<span class="k' + k + '">' + k + "</span>" : "<span></span>").join("") + "</span>"
         + '<span class="dold">, ' + kap.length + " kapitel" + bedomda.map(([a, namn]) => ", " + a + " känns " + namn.toLowerCase()).join("") + "</span>";
       // Alla moduler är hopfällbara, och name gör att bara en kan vara utfälld åt gången.
       h += '<details class="modul" name="moduler" id="modul-' + esc(m.id) + '" data-modul="' + esc(m.id) + '"' + (m.id === utfalld ? " open" : "") + ">"
@@ -188,10 +189,8 @@
   // "Tentan · repetition från 17 dec · ons 13 jan · 3 gamla tentor · Öppna →"
   function tentaRad(m) {
     const K = Kurs.data;
-    const delar = [datum(Kurs.datumText(K.kurs.tenta, "kort"))];
-    for (const v of Kurs.visasMed(m.id)) delar.push(esc(v.namn.toLowerCase()) + " från " + datum(Kurs.datumText(Kurs.modulDatum(v.id).forsta)));
-    if (K.tentor.length) delar.push(datum(K.tentor.length + (K.tentor.length === 1 ? " gammal tenta" : " gamla tentor")));
-    const titel = '<span class="modul-titel">' + esc(m.namn) + ' <span class="modul-datum">' + delar.join(" · ") + "</span></span>";
+    const delar = [datum(Kurs.datumText(K.kurs.tenta, "kort"))]; // repetitionen syns i tidslinjen
+    const titel = '<span class="modul-titel">' + esc(m.namn) + '</span> <span class="modul-datum">' + delar.join("&nbsp;· ") + "</span>";
     // Så länge Tentan-vyn är en platshållare är raden ingen länk (DESIGNLAG L6: inga skenbara funktioner).
     if (window.Vyer.tentan && window.Vyer.tentan.platshallare) {
       return '<section class="modul" id="modul-' + esc(m.id) + '"><div class="modulrubrik tentarad">' + titel
@@ -232,7 +231,7 @@
     });
     el.innerHTML = '<div class="laget">' + rubrik(dag) + tidslinje(dag)
       + '<section class="kapitlen" aria-labelledby="rubrik-kapitlen">'
-      + '<div class="kapitlen-topp"><h2 id="rubrik-kapitlen" class="etikett">Kapitlen</h2>'
+      + '<div class="kapitlen-topp"><h2 id="rubrik-kapitlen" class="dold">Kapitlen</h2>'
       + '<div class="flikar" role="group" aria-label="Sortering">'
       + Object.entries(SORTERINGAR).map(([k, [namn, lang]]) =>
         '<button type="button" class="flik" data-sortering="' + k + '" aria-pressed="' + (k === sortering) + '"'
