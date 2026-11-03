@@ -13,11 +13,21 @@
   function tema() {
     try { return localStorage.getItem(TEMA_NYCKEL) || "auto"; } catch (e) { return "auto"; }
   }
-  function sattTema(t) {
-    try { if (t === "auto") localStorage.removeItem(TEMA_NYCKEL); else localStorage.setItem(TEMA_NYCKEL, t); } catch (e) { /* gäller bara nu */ }
+  function visaTema(t) {
     if (t === "auto") delete document.documentElement.dataset.theme;
     else document.documentElement.dataset.theme = t;
   }
+  function sattTema(t) {
+    try { if (t === "auto") localStorage.removeItem(TEMA_NYCKEL); else localStorage.setItem(TEMA_NYCKEL, t); } catch (e) { /* gäller bara nu */ }
+    visaTema(t);
+  }
+
+  // Temat byttes i en annan flik: byt här också, och visa det i Inställningar om de är öppna.
+  window.addEventListener("storage", (e) => {
+    if (e.key !== TEMA_NYCKEL && e.key !== null) return;
+    visaTema(tema());
+    uppdatera();
+  });
 
   // ---------- Byggstenar ----------
   function rad(namn, hjalp, kontroll) {
