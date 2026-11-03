@@ -447,6 +447,11 @@ Fasen är inte färdigplanerad. Den delas upp så här:
 - Läget: Fortsätt är en mörk kapsel, och kapitelraderna är 2.5rem höga (44 px på pekskärm och smal skärm).
 - Känt efter mätning: `--kant-kontroll` har 1,4:1 mot bakgrunden (WCAG 1.4.11 vill ha 3:1 för kanter som behövs för att se en kontroll). Uppgifternas siffror och kapslarnas text syns tydligt ändå. Värdet kommer från instruktionen och är inte ändrat.
 
+**Beslut (buggfixar, 3 nov 2026):**
+- När fliken blir synlig igen ritas sidan om, om dagen har bytts eller en föreläsning har slutat sedan sidan ritades. Datumet i navigeringen räknas om vid varje omritning. Det gäller till exempel mobilen, där en flik kan stå öppen över natten utan att laddas om.
+- En ändring från en annan flik ritar alltid om vyn. Står fokus i anteckningen flyttas det gamla fältet in i den nya vyn, med text, markör och fokus. Det ersätter fas 5-beslutet om att inte rita om alls medan man skriver.
+- Ett temabyte i en flik slår igenom i andra öppna flikar.
+
 **Öppna frågor:**
 - Ska sidan byta typsnitt till Inter i stället för systemfonten?
 - Känslans färgskala upplevs som "lerig" (brunt och oliv). Behövs en renare skala med samma ljushet?

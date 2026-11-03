@@ -53,6 +53,14 @@
   // ---------- Rita ----------
   function ritaSidfot() { Delar.sidfot(sidfot); }
 
+  // Det som beror på klockan: dagen och hur många föreläsningar som har slutat.
+  // Ändras det medan sidan står öppen ritas sidan om (se visibilitychange nedan).
+  function tidslage() {
+    const dag = Kurs.idag(), tid = Kurs.klockslag();
+    return dag + "|" + Kurs.data.forelasningar.filter((f) => f.datum < dag || (f.datum === dag && f.slut <= tid)).length;
+  }
+  let ritadVid = "";
+
   // scrolla = false när samma vy ritas om (t.ex. efter en ändring i en annan flik).
   function rendera(scrolla = true) {
     markeraHistorik();
@@ -69,19 +77,36 @@
     }
     if (scrolla) window.scrollTo(0, 0);
     ritaSidfot();
+    document.getElementById("idag").textContent = Kurs.datumText(Kurs.idag(), "lang");
+    ritadVid = tidslage();
   }
 
-  document.getElementById("idag").textContent = Kurs.datumText(Kurs.idag(), "lang");
+  // Ritar om samma vy utan att scrolla. Står fokus i ett textfält (anteckningen) flyttas det
+  // gamla fältet in i den nya vyn, med text, markör och fokus, så att inget hoppar under fingrarna.
+  function ritaOm() {
+    const a = document.activeElement;
+    const falt = a && a.tagName === "TEXTAREA" && a.id ? a : null;
+    const lage = falt && [falt.selectionStart, falt.selectionEnd, falt.scrollTop];
+    rendera(false);
+    const nytt = falt && document.getElementById(falt.id);
+    if (!nytt) return;
+    nytt.replaceWith(falt);
+    falt.focus();
+    falt.setSelectionRange(lage[0], lage[1]);
+    falt.scrollTop = lage[2];
+  }
   document.title = Kurs.data.kurs.kod + " " + Kurs.data.kurs.namn;
 
   Lagring.vidAndring(ritaSidfot);
   // Kopian på disken byter läge (aktiv, behöver OK, fel): sidfoten och Inställningar visar det direkt.
   Sparfil.vidAndring(() => { ritaSidfot(); Vyer.installningar.uppdatera(); });
   Sparfil.init();
-  Lagring.vidAndringIAnnanFlik(() => {
-    // Skriver man i anteckningen ska fältet inte ritas om under fingrarna.
-    if (document.activeElement && document.activeElement.tagName === "TEXTAREA") return;
-    rendera(false);
+  // En annan flik har sparat: visa samma sak här.
+  Lagring.vidAndringIAnnanFlik(ritaOm);
+  // Står sidan öppen länge (till exempel över natten i mobilen) räknas dagen, idag-linjen och
+  // nästa föreläsning om när fliken syns igen. Bara om något faktiskt har ändrats, så att fokus står kvar.
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "visible" && tidslage() !== ritadVid) ritaOm();
   });
   window.addEventListener("hashchange", () => rendera());
 
