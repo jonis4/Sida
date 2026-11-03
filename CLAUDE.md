@@ -429,7 +429,27 @@ Fasen är inte färdigplanerad. Den delas upp så här:
 - Nu: grannarna är bara pil och kapitel ("← 12.3 Curves …", "13.3 Partial Derivatives →"), utan "Föregående" och "Nästa kapitel". Skärmläsare får orden. Nästa står i `--text`, föregående i `--tyst`.
 - Inställningar: kortare förklaringar ("En fil som uppdateras vid varje ändring.", "Flytta din data till en annan dator eller webbläsare.", "Går att ångra i 15 sekunder."), och sammanfattningen är bara "5 av 31 kapitel har något ifyllt.".
 
+**Beslut (färre val, grenen `farre-val`, 3 nov 2026)** enligt Jonatans instruktion "färre saker att tolka":
+- Läget får en huvudhandling (L2): "Fortsätt med <kapitel> →" till det senast öppnade kapitlet, och "Börja med 13.1 … →" innan något öppnats. Raden om hur man kommer igång är borttagen.
+- Sorteringsflikarna syns först när modul 6 har börjat (modulen med `visas_med`, annars den sista vanliga). Innan dess är listan alltid i kursordning. Koden för sorteringarna finns kvar.
+- Modulrubrikerna visar ▸/▾ före namnet i stället för "Visa ↓"/"Dölj ↑". Tentan-raden har samma indrag utan triangel.
+- Kapitelraderna har en pil → i en egen smal kolumn (`--tertiar`, `--text` vid hover). Titeln stryks inte längre under vid hover.
+- Känslorutorna under en hopfälld modul syns bara om minst ett kapitel i modulen är bedömt.
+- Nu: metaraden är en rad ("Modul 1 · Föreläsning 4, tors 5 nov 14:45, E231 · s. 708"), och den bryts bara mellan delar. Facit syns inte alls förrän det finns ett facit. Det ersätter fas 0-beslutet om inaktiv Facit-text.
+- `layout.md` §4 och §5.1 är uppdaterade efter instruktionen.
+
+**Beslut (luftigare UI, grenen `farre-val`, 3 nov 2026)** enligt Jonatans instruktion "luftigare UI och tydligare grupper i Nu":
+- `DESIGNLAG.md` §4 är ändrad på de punkter Jonatan godkänt: 15 px brödtext och skalan 13/15/32, etiketter i gemener (tertiär färg, normal vikt), vikt 600 bara för h1 och modulrubriker, huvudhandlingen som mörk kapsel, kapslar i segmentval och en grupperingsyta per vy.
+- **Godkänt avsteg (DESIGNLAG §10):** grupperingsytan `--yta-grupp` runt "Hur känns kapitlet? + Anteckning" i Nu. Motivering: gruppen hör ihop (det man gör efteråt) och skiljer sig från uppgifterna. Ytan har ingen kant och ingen skugga.
+- Nya variabler: `--kant-kontroll`, `--kant-kontroll-streckad`, `--yta-grupp`, `--rundning-kontroll`, `--rundning-grupp`, `--rundning-kapsel`, `--luft-rubrik`, `--luft-grupp`, `--sparrning-rubrik` och `--sparrning-modul`. `--tyst` är `#6b6b6b`, `--tertiar` `#767676` och `--kontroll` `#f1f1f1` i ljust läge.
+- `--tertiar` klarar bara 4,2:1 mot `--yta-grupp` och `--yta`. På grå ytor (gruppen i Nu, raden "senast öppnad", frågorna i Inställningar) sätts därför `--tertiar` lokalt till `--tyst`.
+- Nu har fyra grupper: Kapitlet (metarad + rubrik), Räkna (uppgifter), Efteråt (känsla + anteckning på ytan) och Vidare (grannar). Känslan är separata kapslar, och på mobil fem lika breda kapslar med bara siffran. Uppgifterna är 44 px med tunn kant, och ikryssade är svarta (`--text`).
+- Läget: Fortsätt är en mörk kapsel, och kapitelraderna är 2.5rem höga (44 px på pekskärm och smal skärm).
+- Känt efter mätning: `--kant-kontroll` har 1,4:1 mot bakgrunden (WCAG 1.4.11 vill ha 3:1 för kanter som behövs för att se en kontroll). Uppgifternas siffror och kapslarnas text syns tydligt ändå. Värdet kommer från instruktionen och är inte ändrat.
+
 **Öppna frågor:**
+- Ska sidan byta typsnitt till Inter i stället för systemfonten?
+- Känslans färgskala upplevs som "lerig" (brunt och oliv). Behövs en renare skala med samma ljushet?
 - Vad betyder ∗ efter vissa uppgiftsnummer i studiehandledningen?
 - Ska påbyggnadsuppgifter räknas i stapeln "Ikryssade"? (Utkastet: nej.)
 - Ska vanliga moduler få en egen vy när man klickar på dem, för konsekvens med Tentan?

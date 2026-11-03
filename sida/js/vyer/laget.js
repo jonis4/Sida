@@ -155,6 +155,7 @@
       + (u.kansla ? '<span class="kanslaruta k' + u.kansla + '">' + u.kansla + '</span><span class="kansla-namn">' + esc(KANSLOR[u.kansla]) + "</span>" : "")
       + "</span>"
       + '<span class="kol-tentan siffror" aria-hidden="true">' + (pt.antal ? pt.antal + " av " + pt.av + " tentor" : "") + "</span>"
+      + '<span class="kol-pil" aria-hidden="true">→</span>' // raden är en väg in
       + "</a></li>";
   }
 
@@ -168,20 +169,20 @@
       if (m.typ === "tenta") { h += tentaRad(m); continue; }
       const d = Kurs.modulDatum(m.id);
       const kap = Kurs.kapitelIModul(m.id);
-      // "Modul 1 · Partiella derivator" i fetstil, datumet tyst bredvid.
-      // Datumet står bredvid titeln, och på mobil på egen rad med Visa ↓ till höger.
+      // "Modul 1 · Partiella derivator" i fetstil, datumet tyst bredvid (på mobil på egen rad).
+      // Triangeln (▸/▾) före titeln ritas i CSS och visar att rubriken fäller ut.
       const titel = '<span class="modul-titel">Modul ' + Kurs.modulNr(m.id) + " · " + esc(m.namn) + "</span>"
         + ' <span class="modul-datum">' + datum(Kurs.intervallText(d.forsta, d.sista)) + "</span>";
       const lista = '<ul class="kapitellista">' + kap.map((c) => kapitelRad(c, senast)).join("") + "</ul>";
       // Hopfälld modul: en liten ruta per kapitel i känslans färg (grå om obedömt), så att man ser läget utan att fälla ut.
+      // Bara om minst ett kapitel i modulen är bedömt. Annars står ingenting under rubriken.
       const kanslor = kap.map((c) => Lagring.kapitel(c.id).kansla);
       const bedomda = Object.entries(KANSLOR).map(([n, namn]) => [kanslor.filter((k) => k === Number(n)).length, namn]).filter(([a]) => a);
-      const rutor = '<span class="modul-rutor" aria-hidden="true">' + kanslor.map((k) => k ? '<span class="k' + k + '">' + k + "</span>" : "<span></span>").join("") + "</span>"
+      const rutor = !bedomda.length ? "" : '<span class="modul-rutor" aria-hidden="true">' + kanslor.map((k) => k ? '<span class="k' + k + '">' + k + "</span>" : "<span></span>").join("") + "</span>"
         + '<span class="dold">, ' + kap.length + " kapitel" + bedomda.map(([a, namn]) => ", " + a + " känns " + namn.toLowerCase()).join("") + "</span>";
       // Alla moduler är hopfällbara, och name gör att bara en kan vara utfälld åt gången.
       h += '<details class="modul" name="moduler" id="modul-' + esc(m.id) + '" data-modul="' + esc(m.id) + '"' + (m.id === utfalld ? " open" : "") + ">"
-        + '<summary class="modulrubrik">' + titel + '<span class="modul-meta"><span class="visa">Visa ↓</span><span class="dolj">Dölj ↑</span></span>'
-        + rutor + "</summary>" + lista + "</details>";
+        + '<summary class="modulrubrik">' + titel + rutor + "</summary>" + lista + "</details>";
     }
     return h;
   }
@@ -223,21 +224,37 @@
     return sortering === "kurs" ? kursordning(dag, senast) : sorterat(senast);
   }
 
+  // Huvudhandlingen (DESIGNLAG L2): det senast öppnade kapitlet, eller kursens första.
+  function fortsatt() {
+    const senast = Lagring.senast() && Kurs.kapitel(Lagring.senast());
+    const c = senast || Kurs.forstaKapitel();
+    return '<a class="fortsatt" href="#/kapitel/' + esc(c.id) + '">'
+      + '<span>' + (senast ? "Fortsätt med " : "Börja med ") + '<span class="siffror">' + esc(c.id) + "</span> " + esc(c.titel) + "</span>"
+      + '<span aria-hidden="true">→</span></a>';
+  }
+
+  // Sorteringarna är till för repetitionen: de syns först när modul 6 har börjat.
+  // Modul 6 är modulen som visas med Tentan, annars den sista vanliga modulen.
+  function visaSortering(dag) {
+    const vanliga = Kurs.data.moduler.filter((m) => m.typ !== "tenta");
+    const m6 = vanliga.find((m) => m.visas_med) || vanliga[vanliga.length - 1];
+    const d = Kurs.modulDatum(m6.id);
+    return !!d && dag >= d.forsta;
+  }
+
   function rita(el) {
     const dag = Kurs.idag();
-    const tomt = Kurs.data.kapitel.every((c) => {
-      const u = Lagring.kapitel(c.id);
-      return !u.ikryssade.length && !u.kansla && !u.anteckning;
-    });
-    el.innerHTML = '<div class="laget">' + rubrik(dag) + tidslinje(dag)
-      + '<section class="kapitlen" aria-labelledby="rubrik-kapitlen">'
-      + '<div class="kapitlen-topp"><h2 id="rubrik-kapitlen" class="dold">Kapitlen</h2>'
-      + '<div class="flikar" role="group" aria-label="Sortering">'
-      + Object.entries(SORTERINGAR).map(([k, [namn, lang]]) =>
-        '<button type="button" class="flik" data-sortering="' + k + '" aria-pressed="' + (k === sortering) + '"'
-        + (lang ? ' aria-label="' + lang + '"' : "") + ">" + namn + "</button>").join("")
-      + "</div></div>"
-      + (tomt ? '<p class="tyst komigang">Öppna ett kapitel för att kryssa i uppgifter och säga hur det känns.</p>' : "")
+    const medSortering = visaSortering(dag);
+    if (!medSortering) sortering = "kurs"; // koden för sorteringarna finns kvar till december
+    el.innerHTML = '<div class="laget">' + rubrik(dag) + tidslinje(dag) + fortsatt()
+      + '<section class="kapitlen" aria-labelledby="rubrik-kapitlen"><h2 id="rubrik-kapitlen" class="dold">Kapitlen</h2>'
+      + (medSortering
+        ? '<div class="kapitlen-topp"><div class="flikar" role="group" aria-label="Sortering">'
+          + Object.entries(SORTERINGAR).map(([k, [namn, lang]]) =>
+            '<button type="button" class="flik" data-sortering="' + k + '" aria-pressed="' + (k === sortering) + '"'
+            + (lang ? ' aria-label="' + lang + '"' : "") + ">" + namn + "</button>").join("")
+          + "</div></div>"
+        : "")
       + '<div class="lista-innehall">' + listan(dag) + "</div>"
       + "</section></div>";
 
@@ -251,10 +268,12 @@
       innehall.innerHTML = listan(dag); // bara listan ritas om, fokus stannar kvar
     }
 
-    vy.querySelector(".flikar").addEventListener("click", (e) => {
-      const b = e.target.closest("button[data-sortering]");
-      if (b && b.dataset.sortering !== sortering) sattSortering(b.dataset.sortering);
-    });
+    if (medSortering) {
+      vy.querySelector(".flikar").addEventListener("click", (e) => {
+        const b = e.target.closest("button[data-sortering]");
+        if (b && b.dataset.sortering !== sortering) sattSortering(b.dataset.sortering);
+      });
+    }
 
     // ?-knappen fäller ut förklaringen på plats.
     vy.querySelector(".tl-hjalp").addEventListener("click", () => visaForklaring(!forklaringOppen));

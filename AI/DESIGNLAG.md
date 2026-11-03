@@ -140,7 +140,8 @@ Varje tillstånd har ett medvetet utseende och ingen tom yta. Minst de här ska 
 
 ### Typografi
 - **Ett typsnitt:** systemfont-stacken.
-- **Två vikter:** 400 och 600. Inget tunnare än 400.
+- **Två vikter:** 400 och 600. Inget tunnare än 400. **Vikt 600 används bara för sidrubriken (h1) och modulrubriker.** Allt annat har vikt 400.
+- **Brödtexten är 15 px**, och typskalan har tydliga steg: 13 (liten), 15 (bas), 32 (sidrubrik).
 - **Tre textroller**, och hierarki byggs med dem i stället för med ramar och färg:
 
 | Roll | Används till |
@@ -149,7 +150,7 @@ Varje tillstånd har ett medvetet utseende och ingen tom yta. Minst de här ska 
 | Sekundär (tyst) | Etiketter, metadata, beskrivningar |
 | Tertiär | Statusrad, datum, legend |
 
-- Små versala etiketter med spärrning för sektionsrubriker och huvudnav.
+- **Etiketter** (sektionsrubriker) skrivs i vanliga gemener, i tertiär färg och normal vikt, inte i versaler med spärrning.
 - Siffror som ska jämföras använder `font-variant-numeric: tabular-nums`.
 - Textspalten är högst cirka 44rem bred.
 
@@ -167,15 +168,16 @@ Varje tillstånd har ett medvetet utseende och ingen tom yta. Minst de här ska 
 - **Vitt utrymme är struktur.** Gruppera med avstånd innan du tar till en linje, och med en linje innan du tar till en ram.
 - **Inga kortramar, inga skuggor, inget glas.** En egen bakgrundsyta får bara det som är *status*, till exempel "nu"-passet eller den pågående veckan.
 - Hårstreck (1px, `--svag`) bara där en gräns behöver markeras som inte är innehåll.
+- En svag yta (`--yta-grupp`) får användas för **en** grupp per vy som hör ihop men skiljer sig från resten. Ytan har ingen kant och ingen skugga.
 
 ### Ikoner och symboler
 - **Inga ikoner utan text**, förutom de helt självklara: ← → och bokmärke.
 - Statusmarkeringar ritas i CSS: ○ ej gjord, ◐ med hjälp, ● själv, ● sitter (i statusfärg). Ordet finns alltid i `title` och som dold text för skärmläsare.
 
 ### Kontroller
-- **Huvudhandling:** ett stort grått block. Bara ett per vy (L2).
+- **Huvudhandling:** en mörk kapsel (bakgrund `--text`, text `--bg`, helt rundad). Bara en per vy (L2).
 - **Sekundära handlingar:** textknappar och länkar med pil ("Starta →").
-- **Val mellan några få alternativ:** segmenterade val i iPhone-stil (grått spår, valt alternativ som en upphöjd platta).
+- **Val mellan några få alternativ:** segmenterade val i iPhone-stil (grått spår, valt alternativ som en upphöjd platta). Valda val i segment kan också visas som separata **kapslar** med tunn kant.
 - **Inställningar:** rader med namn och kort förklaring till vänster och kontrollen till höger.
 - **Filter:** textflikar överst, inga rullgardinsmenyer.
 - **Bekräftelseknappar säger vad de gör:** "Radera all data", "Ersätt all data". Aldrig "OK".
