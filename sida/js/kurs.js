@@ -39,12 +39,13 @@
     return Math.floor(dagIAret / 7) + 1;
   }
 
-  // "Torsdag 5 nov", "torsdag 5 november", "tors 5 nov", "5 nov"
+  // "Torsdag 5 nov", "torsdag 5 november", "3/11", "tors 5 nov", "5 nov"
   function datumText(iso, form) {
     const d = utc(iso);
     const dag = d.getUTCDate() + " " + MANADER[d.getUTCMonth()];
     if (form === "lang") { const v = DAGAR[d.getUTCDay()]; return v[0].toUpperCase() + v.slice(1) + " " + dag; }
     if (form === "hel") return DAGAR[d.getUTCDay()] + " " + d.getUTCDate() + " " + MANADER_HELA[d.getUTCMonth()]; // "torsdag 5 november"
+    if (form === "siffror") return d.getUTCDate() + "/" + (d.getUTCMonth() + 1); // "3/11"
     if (form === "kort") return DAGAR_KORT[d.getUTCDay()] + " " + dag;
     return dag;
   }

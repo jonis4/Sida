@@ -129,34 +129,101 @@
       + ex('<span class="tl-tenta"></span>', "Tenta");
   }
 
+  // ---------- Föreläsningar ----------
+  // Läge: förbi (har slutat), idag (idag och inte slutad) eller kommer.
+  function flLage(f, dag) {
+    if (f.datum < dag || (f.datum === dag && f.slut <= Kurs.klockslag())) return "forbi";
+    return f.datum === dag ? "idag" : "kommer";
+  }
+  // "föreläsning 4 idag", "föreläsning 5, fre 6 nov och föreläsning 6, mån 9 nov"
+  function flText(fs, dag) {
+    return fs.map((f) => "föreläsning " + f.nr + (flLage(f, dag) === "idag" ? " idag" : ", " + Kurs.datumText(f.datum, "kort"))).join(" och ");
+  }
+
   // ---------- En kapitelrad ----------
-  function kapitelRad(c, senast) {
+  // Nummer · titel · ikryssade · känsla · pil. Tentaräknaren och "senast öppnad" står bara i
+  // skärmläsarnamnet: den grå ytan markerar senast öppnad. extra = { rad, fl } där rad är
+  // radens plats i föreläsningsgruppen och fl visar föreläsningen som tyst text (sorterade listor).
+  function kapitelRad(c, senast, dag, extra = {}) {
     const u = Lagring.kapitel(c.id);
     const ikr = c.standard.filter((n) => u.ikryssade.includes(n)).length; // bara standarduppgifter räknas
     const tot = c.standard.length;
     const pt = Kurs.paTentan(c.id);
+    const fs = Kurs.forelasningarFor(c.id);
     const arSenast = c.id === senast;
 
     const namn = [c.id + " " + c.titel];
+    if (fs.length) namn.push(flText(fs, dag));
     namn.push(tot ? ikr + " av " + tot + " uppgifter ikryssade" : "inga standarduppgifter");
-    if (u.kansla) namn.push("känns " + u.kansla + " " + KANSLOR[u.kansla]);
+    if (u.kansla) namn.push("känns " + KANSLOR[u.kansla]);
     if (pt.antal) namn.push("på " + pt.antal + " av " + pt.av + " gamla tentor");
     if (arSenast) namn.push("senast öppnad");
 
-    return '<li><a class="kapitelrad' + (arSenast ? " senast" : "") + '" href="#/kapitel/' + esc(c.id) + '" aria-label="' + esc(namn.join(", ")) + '">'
-      + '<span class="kol-kapitel"><span class="kapitelnr">' + esc(c.id) + '</span><span class="kapiteltitel">' + esc(c.titel) + "</span>"
-      + (arSenast ? '<span class="senast-etikett">senast öppnad</span>' : "") + "</span>"
+    return '<a class="kapitelrad' + (arSenast ? " senast" : "") + '" href="#/kapitel/' + esc(c.id) + '" aria-label="' + esc(namn.join(", ")) + '"'
+      + (extra.rad ? ' style="grid-row: ' + extra.rad + '"' : "") + ">"
+      + '<span class="kol-nr" aria-hidden="true">' + esc(c.id) + "</span>"
+      + '<span class="kol-titel" aria-hidden="true" title="' + esc(c.titel) + '">'
+      + (extra.fl && fs.length ? '<span class="fl-tyst">' + fs.map((f) => "F" + f.nr).join(" ") + "</span> " : "") + esc(c.titel) + "</span>"
       + '<span class="kol-ikryssade" aria-hidden="true">'
       + (!tot ? '<span class="tertiar">–</span>'
         : ikr ? '<span class="stapel"><span style="width:' + (100 * ikr / tot) + '%"></span></span><span class="siffror">' + ikr + "/" + tot + "</span>"
         : "") // stapeln visas först när något är ikryssat; antalet står i skärmläsarnamnet
       + "</span>"
       + '<span class="kol-kansla" aria-hidden="true">'
-      + (u.kansla ? '<span class="kanslaruta k' + u.kansla + '">' + u.kansla + '</span><span class="kansla-namn">' + esc(KANSLOR[u.kansla]) + "</span>" : "")
+      + (u.kansla ? '<span class="kansla-etikett k' + u.kansla + '">' + esc(KANSLOR[u.kansla]) + "</span>" : "") // namnet bär informationen, färgen förstärker
       + "</span>"
-      + '<span class="kol-tentan siffror" aria-hidden="true">' + (pt.antal ? pt.antal + " av " + pt.av + " tentor" : "") + "</span>"
       + '<span class="kol-pil" aria-hidden="true">→</span>' // raden är en väg in
-      + "</a></li>";
+      + "</a>";
+  }
+
+  // ---------- Föreläsningsgrupper (kursordning) ----------
+  // Kapitlen i modulen grupperas efter föreläsningarna som tar upp dem. Delar två föreläsningar
+  // en rad (13.5 på F5 och F6) blir de en grupp, och den senare klammern förskjuts.
+  // Varje grupp är ett rutnät: föreläsningarna i kolumn 1, kapitelraderna i kolumn 2, på samma rader.
+  function flGrupper(kap, senast, dag) {
+    const index = new Map(kap.map((c, i) => [c.id, i]));
+    const fl = Kurs.data.forelasningar
+      .map((f) => { const r = f.kapitel.filter((k) => index.has(k)).map((k) => index.get(k)); return r.length ? { f, fran: Math.min(...r), till: Math.max(...r) } : null; })
+      .filter(Boolean)
+      .sort((x, y) => x.fran - y.fran || x.till - y.till);
+    // Sammanhängande block av rader. Kapitel utan föreläsning blir egna grupper.
+    const grupper = [];
+    for (const x of fl) {
+      const g = grupper[grupper.length - 1];
+      if (g && x.fran <= g.till) { g.fl.push(x); g.till = Math.max(g.till, x.till); }
+      else grupper.push({ fran: x.fran, till: x.till, fl: [x] });
+    }
+    for (let i = 0; i < kap.length; i++) {
+      if (!grupper.some((g) => i >= g.fran && i <= g.till)) grupper.push({ fran: i, till: i, fl: [] });
+    }
+    grupper.sort((x, y) => x.fran - y.fran);
+
+    return '<ol class="fl-grupper">' + grupper.map((g) => {
+      // Föreläsningar som börjar på samma rad (16.5 på F21 och F22) får en gemensam etikett: "F21–22".
+      const forsta = new Map();
+      for (const x of g.fl) { if (!forsta.has(x.fran)) forsta.set(x.fran, []); forsta.get(x.fran).push(x); }
+      let h = "";
+      g.fl.forEach((x, i) => {
+        const lage = flLage(x.f, dag);
+        const tidigare = g.fl.slice(0, i).some((y) => y.till >= x.fran); // överlappar en tidigare: förskjuten klammer
+        const samma = forsta.get(x.fran);
+        let text = "";
+        if (samma[0] === x) {
+          const ff = samma.map((y) => y.f);
+          const lagen = ff.map((f) => flLage(f, dag));
+          const textLage = lagen.includes("idag") ? "idag" : lagen.includes("kommer") ? "kommer" : "forbi";
+          const nr = ff.length > 1 ? "F" + ff[0].nr + "–" + ff[ff.length - 1].nr : "F" + ff[0].nr;
+          const dagLang = ff.length > 1 ? Kurs.intervallText(ff[0].datum, ff[ff.length - 1].datum) : Kurs.datumText(ff[0].datum, "kort");
+          const dagKort = Kurs.datumText(ff[0].datum, "siffror");
+          text = '<span class="fl-text ' + textLage + '"><span class="fl-nr">' + nr + "</span>"
+            + '<span class="fl-dag">' + (textLage === "idag" ? "idag" : '<span class="lang">' + esc(dagLang) + '</span><span class="kort">' + esc(dagKort) + "</span>") + "</span></span>";
+        }
+        h += '<span class="fl-markering ' + lage + (tidigare ? " forskjuten" : "") + '" style="grid-row: ' + (x.fran - g.fran + 1) + " / span " + (x.till - x.fran + 1) + '" aria-hidden="true">'
+          + text + "</span>";
+      });
+      for (let i = g.fran; i <= g.till; i++) h += kapitelRad(kap[i], senast, dag, { rad: i - g.fran + 1 });
+      return '<li class="fl-grupp">' + h + "</li>";
+    }).join("") + "</ol>";
   }
 
   // ---------- Kursordning: grupperad per modul ----------
@@ -173,7 +240,7 @@
       // Triangeln (▸/▾) före titeln ritas i CSS och visar att rubriken fäller ut.
       const titel = '<span class="modul-titel">Modul ' + Kurs.modulNr(m.id) + " · " + esc(m.namn) + "</span>"
         + ' <span class="modul-datum">' + datum(Kurs.intervallText(d.forsta, d.sista)) + "</span>";
-      const lista = '<ul class="kapitellista">' + kap.map((c) => kapitelRad(c, senast)).join("") + "</ul>";
+      const lista = flGrupper(kap, senast, dag);
       // Hopfälld modul: en liten ruta per kapitel i känslans färg (grå om obedömt), så att man ser läget utan att fälla ut.
       // Bara om minst ett kapitel i modulen är bedömt. Annars står ingenting under rubriken.
       const kanslor = kap.map((c) => Lagring.kapitel(c.id).kansla);
@@ -202,7 +269,8 @@
   }
 
   // ---------- Sorterat utan grupper ----------
-  function sorterat(senast) {
+  // Sorterade listor följer inte tiden, så där står föreläsningen som tyst text utan klammer.
+  function sorterat(senast, dag) {
     const K = Kurs.data;
     const ordning = new Map(K.kapitel.map((c, i) => [c.id, i]));
     const kap = K.kapitel.slice();
@@ -214,14 +282,14 @@
       // Flest förekomster först. Lika: kursordning.
       kap.sort((a, b) => Kurs.paTentan(b.id).antal - Kurs.paTentan(a.id).antal || ordning.get(a.id) - ordning.get(b.id));
     }
-    let h = '<ul class="kapitellista platt">' + kap.map((c) => kapitelRad(c, senast)).join("") + "</ul>";
+    let h = '<ul class="kapitellista platt">' + kap.map((c) => "<li>" + kapitelRad(c, senast, dag, { fl: true }) + "</li>").join("") + "</ul>";
     if (sortering === "tentan" && !K.tentor.length) h = '<p class="tyst">Inga gamla tentor är inlagda än.</p>' + h;
     return h;
   }
 
   function listan(dag) {
     const senast = Lagring.senast();
-    return sortering === "kurs" ? kursordning(dag, senast) : sorterat(senast);
+    return sortering === "kurs" ? kursordning(dag, senast) : sorterat(senast, dag);
   }
 
   // Huvudhandlingen (DESIGNLAG L2): det senast öppnade kapitlet, eller kursens första.
@@ -259,6 +327,7 @@
       + "</section></div>";
 
     const vy = el.querySelector(".laget");
+    const standard = oppenModul(dag); // modulen som är utfälld utan att man valt något
     tidslinjeText();
     const innehall = vy.querySelector(".lista-innehall");
 
@@ -278,11 +347,14 @@
     // ?-knappen fäller ut förklaringen på plats.
     vy.querySelector(".tl-hjalp").addEventListener("click", () => visaForklaring(!forklaringOppen));
 
-    // Minns vilken modul som är utfälld. Fäller man ut en fälls de andra ihop
+    // Minns vilken modul man fällt ut. Fäller man ut en fälls de andra ihop
     // (name på <details> gör det redan i nya webbläsare, det här är för äldre).
+    // Att sidan själv ritar ut modulen som pågår räknas inte som ett val, så att
+    // rätt modul är utfälld när en ny modul börjar medan sidan står öppen.
     innehall.addEventListener("toggle", (e) => {
       const d = e.target;
       if (!d.dataset || !d.dataset.modul) return;
+      if (d.open && oppen === null && d.dataset.modul === standard) return;
       if (d.open) {
         oppen = d.dataset.modul;
         innehall.querySelectorAll("details[open]").forEach((x) => { if (x !== d) x.open = false; });
@@ -306,12 +378,12 @@
     }
   });
 
-  function visaForklaring(oppen) {
-    forklaringOppen = oppen;
+  function visaForklaring(visa) {
+    forklaringOppen = visa;
     const b = document.querySelector(".tl-hjalp");
     if (!b) return;
-    b.setAttribute("aria-expanded", oppen);
-    document.getElementById("tl-forklaring").hidden = !oppen;
+    b.setAttribute("aria-expanded", visa);
+    document.getElementById("tl-forklaring").hidden = !visa;
   }
 
   (window.Vyer = window.Vyer || {}).laget = { rita };

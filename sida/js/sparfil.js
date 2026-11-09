@@ -43,7 +43,10 @@
   }
 
   // ---------- Skrivning ----------
-  async function skriv() {
+  // Skrivningarna står i kö, så att två aldrig pågår samtidigt mot samma fil.
+  let ko = Promise.resolve();
+  const skriv = () => (ko = ko.then(skrivEn));
+  async function skrivEn() {
     if (!handtag || lage !== "aktiv") return;
     try {
       const w = await handtag.createWritable();
