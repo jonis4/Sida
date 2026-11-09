@@ -143,14 +143,19 @@ Plus en sak sidan själv håller koll på: **senast öppnade kapitel**.
 - **Moduler är hopfällbara**, och bara en är utfälld åt gången. En triangel före namnet visar läget: ▸ hopfälld, ▾ utfälld. Under en hopfälld modul står en ruta per kapitel i känslans färg, men bara om minst ett kapitel i modulen är bedömt.
 - **Kapitelraderna** har en pil → längst till höger, så att de syns som vägar in.
 - **Tentan** står sist som en egen modulrad: "Tentan · ons 13 jan · 3 gamla tentor · Öppna →".
+- **Föreläsningskolumn** till vänster i en utfälld modul: föreläsningens nummer och dag ("F2 · tis 3 nov", på mobil "3/11"). En tunn lodrät **klammer** binder ihop kapitlen som föreläsningen tar upp. Tar ett kapitel upp på två föreläsningar (13.5 på F5 och F6) överlappar klamrarna, och den senare är förskjuten. Börjar två föreläsningar på samma kapitel (16.5 på F21 och F22) delar de etikett ("F21–22 · 8–9 dec"). Förbi föreläsningar är grå, dagens är svart och säger "idag", och kommande är ljusgrå.
 - **En rad per kapitel**, med kolumnerna:
 
 | Kolumn | Innehåll |
 |---|---|
-| Kapitel | Nummer i fast bredd + titel. "senast öppnad" på den raden |
-| Ikryssade | Tunn stapel + `x/y` (standarduppgifter). Bara det man klickat i |
-| Känns | Siffran i en ruta (gråskala 1→5) + nivåns namn. Tom om inget är valt |
-| På tentan | "3 av 3" om kapitlet förekommit på gamla tentor, annars tomt |
+| Nummer | Kapitelnumret, litet och tyst |
+| Titel | En rad. Klipps med … om den är för lång |
+| Ikryssade | Kort, tunn stapel + `x/y` (standarduppgifter). Bara det man klickat i |
+| Känns | En färgad etikett med nivåns namn ("Kan räkna"). Tom om inget är valt |
+
+- **Senast öppnad** markeras med en grå yta på raden.
+- **På tentan** visas inte på raderna. Den styr sorteringen *Viktigast på tentan* och läses upp av skärmläsare.
+- I de **sorterade listorna** står föreläsningen som tyst text före titeln ("F4"), utan klammer, eftersom ordningen där inte följer tiden.
 
 - **Klick på en rad** öppnar kapitlet i Nu.
 - **Sortering** som textflikar ovanför listan, men **först när modul 6 (repetitionen) har börjat**. Innan dess är listan alltid i kursordning:

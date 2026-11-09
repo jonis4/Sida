@@ -9,6 +9,11 @@
   --tyst: #6b6b6b;          /* sekundär: metadata (5,3:1 mot --bg, 4,9:1 mot --yta-grupp) */
   --tertiar: #767676;       /* tertiär: etiketter, datum, legend (4,5:1 mot --bg). På grå ytor används --tyst */
   --svag: #e3e3e3;          /* hårstreck */
+  --svag-modul: #ececec;    /* hårstreck mellan moduler */
+  --pil: #888888;           /* pilen på kapitelraderna (3,2:1 också mot --yta) */
+  --klammer-forbi: #c4c4c4;
+  --klammer-kommer: #e6e6e6;
+  --klammer-idag: var(--text);
   --yta: #f3f3f3;           /* egen yta: bara för status (t.ex. "senast öppnad") */
   --kontroll: #f1f1f1;      /* segmentspår (tema) */
   --kant-kontroll: #dcdcdc;           /* kant på uppgifter, kapslar och textfält */
@@ -65,6 +70,14 @@
   --luft-rubrik: 3rem;           /* från rubrik till första gruppen */
   --luft-grupp: 4.5rem;          /* mellan grupper */
   --hårstreck: 1px solid var(--svag);
+  --hårstreck-modul: 1px solid var(--svag-modul);   /* mellan moduler i Läget: ljusare */
+  --luft-mellan: 2rem;           /* 32 px: före Fortsätt, efter en utfälld modul */
+  --luft-stor: 4rem;             /* 64 px: efter Fortsätt, före sidfoten */
+
+  /* Föreläsningskolumnen i Läget */
+  --fl-kol: 4.5rem;              /* kolumnens bredd */
+  --fl-klammer-x: 3.75rem;       /* klammerns läge i kolumnen */
+  --rad-h: 2.75rem;              /* radhöjd (= --klickyta) */
 
   color-scheme: light dark;
 }
@@ -77,6 +90,16 @@
     --tyst: #a6a6a6;
     --tertiar: #8f8f8f;
     --svag: #2e2e2e;
+  --svag-modul: #242424;
+  --pil: #6e6e6e;
+  --klammer-forbi: #5a5a5a;
+  --klammer-kommer: #333333;
+  --klammer-idag: var(--text);
+    --svag-modul: #242424;
+    --pil: #6e6e6e;
+    --klammer-forbi: #5a5a5a;
+    --klammer-kommer: #333333;
+    --klammer-idag: var(--text);
     --yta: #222222;
     --kontroll: #2c2c2c;
   --kant-kontroll: #3a3a3a;
@@ -299,24 +322,6 @@ legend { padding: 0; }
 .segment-val.k5:has(input:checked) { background: var(--kansla-5); }
 .segment-val:has(input:focus-visible) { outline: 2px solid var(--fokus); outline-offset: 1px; }
 
-/* Känsla som liten ruta (Läget): färg + siffra, namnet bredvid. */
-.kanslaruta {
-  flex: none;
-  display: inline-grid;
-  place-items: center;
-  width: 1.25rem;
-  height: 1.25rem;
-  border-radius: 4px;
-  color: var(--kansla-text);
-  font-size: 0.6875rem;
-  font-weight: var(--vikt);
-  font-variant-numeric: tabular-nums;
-}
-.kanslaruta.k1 { background: var(--kansla-1); }
-.kanslaruta.k2 { background: var(--kansla-2); }
-.kanslaruta.k3 { background: var(--kansla-3); }
-.kanslaruta.k4 { background: var(--kansla-4); }
-.kanslaruta.k5 { background: var(--kansla-5); }
 .kansla-vald { display: none; margin: var(--steg-2) 0 0; color: var(--tertiar); font-size: var(--storlek-liten); text-align: center; }
 .kansla-vald span { color: var(--text); }
 
@@ -362,7 +367,8 @@ legend { padding: 0; }
 /* ==========================================================================
    Läget (layout.md §4)
    ========================================================================== */
-.laget-pagar { margin: 0 0 var(--steg-5); color: var(--tyst); font-size: 0.875rem; }
+.laget-pagar { margin: 0 0 var(--luft-rubrik); color: var(--tyst); font-size: 0.875rem; }
+.laget { padding-bottom: calc(var(--luft-stor) - var(--steg-5) - var(--steg-2)); }   /* 64 px till sidfoten */
 
 /* Tidslinjen (layout.md §4.2): rent visuell, allt placeras i procent av tiden. */
 .tidslinje { position: relative; height: 3.875rem; }
@@ -390,7 +396,7 @@ legend { padding: 0; }
 .tl-idag { top: 0.75rem; height: 3rem; width: 2px; margin-left: -1px; background: var(--text); box-shadow: 0 0 0 2px var(--bg); }
 
 /* ?-knappen: 44 px klickyta, cirkeln i linje med tidslinjens högerkant. */
-.tl-hjalp-rad { display: flex; justify-content: flex-end; margin: -0.625rem 0 var(--steg-4); }
+.tl-hjalp-rad { display: flex; justify-content: flex-end; margin: -0.625rem 0 calc(var(--luft-mellan) - var(--steg-3)); }
 .tl-hjalp {
   display: flex;
   align-items: center;
@@ -448,7 +454,7 @@ legend { padding: 0; }
   gap: var(--steg-3);
   max-width: 100%;
   min-height: var(--klickyta);
-  margin: 0 0 var(--steg-5);
+  margin: var(--steg-3) 0 var(--luft-stor);
   padding: 0.7rem 1.2rem;
   border-radius: var(--rundning-kapsel);
   background: var(--text);
@@ -474,17 +480,9 @@ legend { padding: 0; }
 .flik:hover { color: var(--text); }
 .flik[aria-pressed="true"] { color: var(--text); font-weight: var(--vikt-fet); }
 
-/* Kolumner: Kapitel · Ikryssade · Känns · På tentan (utan rubriker: innehållet säger själv vad det är) */
-.kapitelrad {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 6rem 7.75rem 6.25rem 1rem;
-  gap: var(--steg-3);
-  align-items: center;
-}
-
 .hel { white-space: nowrap; }
 .modul { margin: 0; }
-.modul[open] { padding-bottom: var(--steg-4); }   /* utfälld: luft före nästa modul */
+.modul[open] { padding-bottom: var(--luft-mellan); }   /* utfälld: luft före nästa modul */
 .modulrubrik {
   display: flex;
   flex-wrap: wrap;
@@ -492,7 +490,7 @@ legend { padding: 0; }
   align-items: baseline;
   gap: 0 var(--steg-3);
   margin: 0;
-  padding: var(--steg-3) 0;
+  padding: 1.125rem 0;           /* hopfälld modul och Tentan-raden */
   min-height: var(--klickyta);
   font-size: var(--storlek-mellan);
   font-weight: var(--vikt-fet);
@@ -502,7 +500,8 @@ legend { padding: 0; }
 .modul-datum { flex: 1 1 auto; }
 .modul-datum, .modul-meta { color: var(--tyst); font-size: var(--storlek-liten); font-weight: var(--vikt); }
 .modul-meta { white-space: nowrap; }
-summary.modulrubrik { cursor: pointer; list-style: none; border-top: var(--hårstreck); }
+summary.modulrubrik { cursor: pointer; list-style: none; border-top: var(--hårstreck-modul); }
+details[open] > summary.modulrubrik { padding: 1.375rem 0 0.625rem; }
 summary.modulrubrik::-webkit-details-marker { display: none; }
 /* Triangeln visar att rubriken fäller ut: ▸ hopfälld, ▾ utfälld (en självklar ikon, DESIGNLAG §4). */
 .modul-titel::before { display: inline-block; width: 1.1em; color: var(--tyst); font-weight: var(--vikt); }
@@ -532,46 +531,94 @@ details[open] > summary .modul-titel::before { content: "▾"; }
 .modul-rutor .k4 { background: var(--kansla-4); }
 .modul-rutor .k5 { background: var(--kansla-5); }
 details[open] .modul-rutor { display: none; }
-.tentarad { text-decoration: none; border-top: var(--hårstreck); }
+.tentarad { text-decoration: none; border-top: var(--hårstreck-modul); }
 a.tentarad:hover .modul-meta { color: var(--text); text-decoration: underline; }
 
-.kapitellista { list-style: none; margin: 0 calc(-1 * var(--steg-2)); padding: 0; }   /* raden har steg-2 inåt: texten hamnar i linje med rubrikerna */
+/* Föreläsningsgrupper: kolumn 1 är föreläsningen, kolumn 2 kapitelraderna, på samma rader.
+   Klammern binder ihop föreläsningens kapitel. Överlappande föreläsningar (13.5 på F5 och F6) förskjuts. */
+.fl-grupper { list-style: none; margin: 0 calc(-1 * var(--steg-2)) 0 0; padding: 0; }
+.fl-grupp {
+  display: grid;
+  grid-template-columns: var(--fl-kol) minmax(0, 1fr);
+  grid-auto-rows: var(--rad-h);
+  margin-top: var(--steg-3);
+}
+.fl-grupp > .kapitelrad { grid-column: 2; }
+.fl-markering { grid-column: 1; position: relative; padding-top: 0.375rem; line-height: 1.2; }
+.fl-text { display: flex; flex-direction: column; }
+.fl-nr { font-size: 0.75rem; font-variant-numeric: tabular-nums; }
+.fl-dag { font-size: 0.6875rem; color: var(--tertiar); white-space: nowrap; }
+.fl-dag .kort { display: none; }
+.fl-markering::after {
+  content: "";
+  position: absolute;
+  left: var(--fl-klammer-x);
+  top: 0.5625rem;
+  bottom: 0.5625rem;
+  width: 2px;
+  border-radius: 1px;
+  background: var(--klammer-forbi);
+}
+.fl-markering.forskjuten::after { left: calc(var(--fl-klammer-x) - 6px); }
+.fl-markering.idag::after { background: var(--klammer-idag); }
+.fl-markering.kommer::after { background: var(--klammer-kommer); }
+.fl-text.forbi .fl-nr { color: var(--tyst); }
+.fl-text.idag .fl-nr { color: var(--text); font-weight: var(--vikt-fet); }
+.fl-text.idag .fl-dag { color: var(--tyst); }
+.fl-text.kommer .fl-nr { color: var(--tertiar); }
+.fl-tyst { color: var(--tertiar); font-size: 0.75rem; font-variant-numeric: tabular-nums; }   /* sorterade listor */
+
+/* Kapitelraden: nummer · titel · ikryssade · känsla · pil. */
+.kapitellista { list-style: none; margin: 0 calc(-1 * var(--steg-2)); padding: 0; }
 .kapitelrad {
-  min-height: 2.5rem;
-  padding: 0.35rem var(--steg-2);
+  display: grid;
+  grid-template-columns: 2.25rem minmax(0, 1fr) 5.25rem 6.5rem 0.75rem;
+  grid-template-areas: "nr titel ikr kansla pil";
+  column-gap: 0.75rem;
+  align-items: center;
+  height: var(--rad-h);
+  padding: 0 var(--steg-2);
   border-radius: var(--rundning);
   text-decoration: none;
 }
-@media (pointer: coarse), (max-width: 40rem) { .kapitelrad { min-height: var(--klickyta); } }   /* 44 px på pekskärm */
-.kol-pil { color: var(--tertiar); text-align: right; }
-.kapitelrad:hover .kol-pil, .kapitelrad:hover .kapiteltitel { color: var(--text); }   /* pilen bär signalen, ingen understrykning */
 .kapitelrad.senast { background: var(--yta); }   /* status, inte dekoration */
-/* Numret i fast bredd, titeln bryts i sin egen spalt. */
-.kol-kapitel { display: grid; grid-template-columns: 2.6rem minmax(0, 1fr); column-gap: var(--steg-2); align-items: baseline; min-width: 0; }
-.kapitelnr { font-variant-numeric: tabular-nums; color: var(--tertiar); }
-.kapiteltitel { min-width: 0; }
-.senast-etikett { grid-column: 2; color: var(--tyst); font-size: var(--storlek-liten); }
-.kol-ikryssade { display: flex; align-items: center; gap: var(--steg-2); color: var(--tyst); font-size: var(--storlek-liten); }
-.stapel { flex: 1; height: 4px; background: var(--svag); border-radius: 2px; overflow: hidden; }
-.stapel span { display: block; height: 100%; background: var(--tyst); }
-.kol-kansla { display: flex; align-items: center; gap: var(--steg-2); font-size: var(--storlek-liten); color: var(--tyst); }
-.kol-tentan { color: var(--tyst); font-size: var(--storlek-liten); }
+.kol-nr { grid-area: nr; font-size: var(--storlek-liten); color: var(--tertiar); font-variant-numeric: tabular-nums; }
+.kol-titel { grid-area: titel; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.kol-ikryssade { grid-area: ikr; display: flex; align-items: center; gap: var(--steg-2); color: var(--tertiar); font-size: 0.75rem; }
+.stapel { flex: 1; max-width: 2.75rem; height: 2px; background: var(--svag); border-radius: 1px; overflow: hidden; }
+.stapel span { display: block; height: 100%; background: var(--tertiar); }
+.kol-kansla { grid-area: kansla; display: flex; align-items: center; }
+.kansla-etikett {
+  display: inline-flex;
+  align-items: center;
+  height: 1.25rem;
+  padding: 0 0.5rem;
+  border-radius: 5px;
+  color: var(--kansla-text);
+  font-size: 0.71875rem;
+  white-space: nowrap;
+}
+.kansla-etikett.k1 { background: var(--kansla-1); }
+.kansla-etikett.k2 { background: var(--kansla-2); }
+.kansla-etikett.k3 { background: var(--kansla-3); }
+.kansla-etikett.k4 { background: var(--kansla-4); }
+.kansla-etikett.k5 { background: var(--kansla-5); }
+.kol-pil { grid-area: pil; color: var(--pil); font-size: var(--storlek-liten); text-align: right; }
+.kapitelrad:hover .kol-pil, .kapitelrad:hover .kol-titel { color: var(--text); }   /* pilen bär signalen, ingen understrykning */
 
-/* Mobil: varje rad blir två rader, kapitlet överst (layout.md §8). */
+/* Mobil: två rader per kapitel, och smalare föreläsningskolumn (layout.md §8). */
 @media (max-width: 40rem) {
+  :root { --fl-kol: 3.125rem; --fl-klammer-x: 2.5rem; --rad-h: 3.625rem; }
+  .fl-dag .lang { display: none; }
+  .fl-dag .kort { display: inline; }
   .kapitelrad {
-    grid-template-columns: minmax(0, 1fr) 7.25rem 5.25rem 1rem;   /* fasta: spalterna linjerar mellan raderna */
-    grid-template-areas: "kap kap kap pil" "ikr kansla tentan pil";
-    gap: var(--steg-1) var(--steg-2);
+    grid-template-columns: 1.875rem 4rem minmax(0, 1fr) 0.75rem;
+    grid-template-areas: "nr titel titel pil" ". ikr kansla pil";
+    row-gap: 3px;
+    align-content: center;
   }
-  .kol-kapitel { grid-area: kap; }
-  .kol-ikryssade { grid-area: ikr; }
-  .kol-kansla { grid-area: kansla; }
-  .kol-tentan { grid-area: tentan; text-align: right; }
-  .kol-pil { grid-area: pil; align-self: center; }
-  .kol-ikryssade .stapel { max-width: 6rem; }
   .kol-ikryssade .tertiar { white-space: nowrap; }
-  /* Modulrubriken: titeln på egen rad, datum och Visa ↓ under (inget "Modul 2 ·" ensamt). */
+  /* Modulrubriken: titeln på egen rad, datumet under (inget "Modul 2 ·" ensamt). */
   .modul-titel { flex-basis: 100%; }
   .modul-datum { padding-left: calc(1.1 * var(--storlek-mellan)); }   /* i linje med titeln efter triangeln */
 }

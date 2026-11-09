@@ -452,6 +452,17 @@ Fasen är inte färdigplanerad. Den delas upp så här:
 - En ändring från en annan flik ritar alltid om vyn. Står fokus i anteckningen flyttas det gamla fältet in i den nya vyn, med text, markör och fokus. Det ersätter fas 5-beslutet om att inte rita om alls medan man skriver.
 - Ett temabyte i en flik slår igenom i andra öppna flikar.
 
+**Beslut (föreläsningskolumn, grenen `forelasningskolumn`, 9 nov 2026)** enligt Jonatans instruktion "föreläsningskolumn i Läget (koncept 2)":
+- Utfällda moduler i Läget har en föreläsningskolumn med klamrar som binder ihop föreläsningens kapitel. Grupperna byggs i `flGrupper()` ur `kurs.json`. Föreläsningar som delar en rad slås ihop till en grupp, och den senare klammern förskjuts 6 px.
+- Tentaräknaren visas inte längre på kapitelraderna. Den står kvar i radens `aria-label` och styr sorteringen "Viktigast på tentan".
+- Känslan på kapitelraderna är en färgad etikett med nivåns namn, utan siffra (namnet gör att färgen inte bär informationen ensam, L12). Rutorna under hopfällda moduler behåller sin siffra.
+- Föreläsningskolumnen finns bara i kursordning. I de sorterade listorna (från modul 6) står föreläsningen som tyst text före titeln.
+- "senast öppnad" står inte längre som text på raden. Den grå ytan räcker, och orden finns i `aria-label`.
+- **Eget beslut, inte i instruktionen:** 16.5 tas upp på både F21 och F22, och båda börjar på samma rad. Etiketterna skulle krocka, så de delar etikett: "F21–22" med dagen "8–9 dec" (på mobil "8/12"). Klamrarna ritas båda, bredvid varandra.
+- Dataavvikelser (kontrollerat 9 nov): inga. Alla föreläsningars kapitel ligger i följd, varje kapitel tas upp på någon föreläsning, och ingen föreläsning har annan modul än sina kapitel. F16, F27 och F28 saknar kapitel och syns bara i tidslinjen.
+- Pilen på kapitelraderna har en egen färg, `--pil` (`#888888`, mörkt `#6e6e6e`). Den klarar 3:1 också mot den grå ytan. Klamrarna (`--klammer-forbi`/`-kommer`) är svagare än 3:1. De är förstärkning, och föreläsningen står i radens etikett.
+- Nya variabler: `--fl-kol`, `--fl-klammer-x`, `--rad-h`, `--klammer-*`, `--pil`, `--svag-modul`/`--hårstreck-modul`, `--luft-mellan` (32 px) och `--luft-stor` (64 px). `Kurs.datumText` har formatet `"siffror"` ("3/11").
+
 **Öppna frågor:**
 - Ska sidan byta typsnitt till Inter i stället för systemfonten?
 - Känslans färgskala upplevs som "lerig" (brunt och oliv). Behövs en renare skala med samma ljushet?
