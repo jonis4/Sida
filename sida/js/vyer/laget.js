@@ -327,6 +327,7 @@
       + "</section></div>";
 
     const vy = el.querySelector(".laget");
+    const standard = oppenModul(dag); // modulen som är utfälld utan att man valt något
     tidslinjeText();
     const innehall = vy.querySelector(".lista-innehall");
 
@@ -346,11 +347,14 @@
     // ?-knappen fäller ut förklaringen på plats.
     vy.querySelector(".tl-hjalp").addEventListener("click", () => visaForklaring(!forklaringOppen));
 
-    // Minns vilken modul som är utfälld. Fäller man ut en fälls de andra ihop
+    // Minns vilken modul man fällt ut. Fäller man ut en fälls de andra ihop
     // (name på <details> gör det redan i nya webbläsare, det här är för äldre).
+    // Att sidan själv ritar ut modulen som pågår räknas inte som ett val, så att
+    // rätt modul är utfälld när en ny modul börjar medan sidan står öppen.
     innehall.addEventListener("toggle", (e) => {
       const d = e.target;
       if (!d.dataset || !d.dataset.modul) return;
+      if (d.open && oppen === null && d.dataset.modul === standard) return;
       if (d.open) {
         oppen = d.dataset.modul;
         innehall.querySelectorAll("details[open]").forEach((x) => { if (x !== d) x.open = false; });
@@ -374,12 +378,12 @@
     }
   });
 
-  function visaForklaring(oppen) {
-    forklaringOppen = oppen;
+  function visaForklaring(visa) {
+    forklaringOppen = visa;
     const b = document.querySelector(".tl-hjalp");
     if (!b) return;
-    b.setAttribute("aria-expanded", oppen);
-    document.getElementById("tl-forklaring").hidden = !oppen;
+    b.setAttribute("aria-expanded", visa);
+    document.getElementById("tl-forklaring").hidden = !visa;
   }
 
   (window.Vyer = window.Vyer || {}).laget = { rita };

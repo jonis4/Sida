@@ -463,6 +463,23 @@ Fasen är inte färdigplanerad. Den delas upp så här:
 - Pilen på kapitelraderna har en egen färg, `--pil` (`#888888`, mörkt `#6e6e6e`). Den klarar 3:1 också mot den grå ytan. Klamrarna (`--klammer-forbi`/`-kommer`) är svagare än 3:1. De är förstärkning, och föreläsningen står i radens etikett.
 - Nya variabler: `--fl-kol`, `--fl-klammer-x`, `--rad-h`, `--klammer-*`, `--pil`, `--svag-modul`/`--hårstreck-modul`, `--luft-mellan` (32 px) och `--luft-stor` (64 px). `Kurs.datumText` har formatet `"siffror"` ("3/11").
 
+**Beslut (animationer, grenen `animationer`, 9 nov 2026):**
+- Moduler i Läget fälls ut och ihop på plats (200 ms, `::details-content` och `interpolate-size`). Eftersom bara en modul är öppen åt gången fälls den ena ihop samtidigt som den andra fälls ut. Det följer `DESIGNLAG.md` §4 Rörelse ("en panel som fälls ut under sin rad").
+- **Avsteg från `DESIGNLAG.md` §4 Rörelse ("ingen rörelse på frekventa interaktioner"), önskat av Jonatan:** vybyten glider kort åt det håll man rör sig (180 ms, 1.5rem, med övertoning, View Transitions). In i ett kapitel, och framåt i kursen, kommer vyn från höger. Tillbaka till Läget, och bakåt i kursen, kommer den från vänster. Motivering: rörelsen visar var man kommer ifrån och vart man går. Bara innehållet glider, och navigeringen står still. Riktningen räknas ut i `router.js`.
+- Webbläsare utan stöd byter direkt, som förut. Den som valt minskad rörelse i systemet får ingen animation alls.
+- Variablerna `--utfallning`, `--vybyte`, `--vybyte-steg` och `--rorelse`.
+
+**Beslut (kodgranskning, 9 nov 2026):**
+- När Läget själv ritar ut modulen som pågår räknas det inte som ett val. Annars "låstes" modulen, och fel modul stod utfälld när en ny modul började medan sidan stod öppen.
+- Skrivningarna till kopian på disken står i kö (`sparfil.js`), så att två aldrig pågår samtidigt mot filen och ger ett falskt fel.
+- Trasig sparad data läggs undan en gång, inte en gång per klick.
+- Små städningar: en parameter i `visaForklaring` har fått ett eget namn, och `.modul-rutor` är en regel i stället för två.
+
+**Beslut (UI-putsarens förslag, 9 nov 2026):**
+- UI-putsarens genomgång 9 nov (rapport: `rapporter/ui-genomgang-2026-11-09.md`): fyra textstorlekar (32/15/13/12, `--storlek-minst` 12 px), vikt 400 på Fortsätt och tidslinjetexten, bredare föreläsningskolumn (`--fl-kol` 5rem, `--fl-klammer-x` 4.25rem), `--luft-fl` 24 px mellan föreläsningsgrupper, rader med automatisk höjd på mobil, och rättade variabler för valt mörkt läge.
+- Godkänt av Jonatan efter prov: inga streck mellan modulerna i Läget. Variablerna `--svag-modul` och `--hårstreck-modul` är borttagna.
+- Godkänt av Jonatan efter prov: Fortsätt går över hela bredden på mobil och står på en rad. Titeln klipps med "…".
+
 **Öppna frågor:**
 - Ska sidan byta typsnitt till Inter i stället för systemfonten?
 - Känslans färgskala upplevs som "lerig" (brunt och oliv). Behövs en renare skala med samma ljushet?

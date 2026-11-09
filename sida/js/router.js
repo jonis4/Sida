@@ -108,7 +108,27 @@
   document.addEventListener("visibilitychange", () => {
     if (document.visibilityState === "visible" && tidslage() !== ritadVid) ritaOm();
   });
-  window.addEventListener("hashchange", () => rendera());
+  // Vybyten glider åt det håll man rör sig: in i ett kapitel (och framåt i kursen) från höger,
+  // tillbaka till översikten (och bakåt i kursen) från vänster. Webbläsare utan View Transitions,
+  // och den som valt minskad rörelse, byter vy direkt.
+  let forra = tolka(location.hash);
+  const DJUP = { laget: 0, nu: 1, tentan: 1, installningar: 1, saknas: 1 };
+  function riktning(fran, till) {
+    if (fran.vy === "nu" && till.vy === "nu") {
+      const ids = Kurs.data.kapitel.map((c) => c.id);
+      return ids.indexOf(till.kapitel) < ids.indexOf(fran.kapitel) ? "bak" : "fram";
+    }
+    return (DJUP[till.vy] ?? 1) < (DJUP[fran.vy] ?? 1) ? "bak" : "fram";
+  }
+  window.addEventListener("hashchange", () => {
+    const till = tolka(location.hash);
+    const r = riktning(forra, till);
+    forra = till;
+    if (!document.startViewTransition || document.hidden || matchMedia("(prefers-reduced-motion: reduce)").matches) { rendera(); return; }
+    document.documentElement.dataset.riktning = r;
+    // Hoppas animationen över (snabba byten efter varandra) byts vyn ändå. Det är inget fel.
+    document.startViewTransition(() => rendera()).ready.catch(() => {});
+  });
 
   // Startvy: har man öppnat ett kapitel förut hamnar man där, annars i Läget.
   // Gäller bara när adressen saknar hash; ett klick på Läget (#/) går alltid till Läget.

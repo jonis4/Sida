@@ -10,6 +10,7 @@
   // data.kapitel[id] = { ikryssade: ["2", "3"], kansla: 1–5, anteckning: "…" }
   // Ett kapitel utan något ifyllt finns inte med. Inget härlett sparas.
   let data = tom();
+  let undanlagd = null; // trasig text som redan lagts undan, så att den inte läggs undan igen
   const status = { sparbar: true, senast: null, fel: null };
   const lyssnare = [];
   const franAnnanFlik = [];
@@ -75,9 +76,11 @@
     try {
       d = JSON.parse(r);
     } catch (e) {
-      // Trasig data skrivs aldrig över: den läggs undan under en egen nyckel först.
-      try { localStorage.setItem(NYCKEL + ".trasig-" + Date.now(), r); } catch (e2) { /* ignoreras */ }
-      console.warn("Sparad data gick inte att tolka och har lagts undan:", e);
+      // Trasig data skrivs aldrig över: den läggs undan under en egen nyckel först (en gång).
+      if (r !== undanlagd) {
+        try { localStorage.setItem(NYCKEL + ".trasig-" + Date.now(), r); undanlagd = r; } catch (e2) { /* ignoreras */ }
+        console.warn("Sparad data gick inte att tolka och har lagts undan:", e);
+      }
       data = tom();
       return;
     }
